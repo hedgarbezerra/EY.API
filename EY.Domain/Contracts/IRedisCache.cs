@@ -21,16 +21,21 @@ namespace EY.Domain.Contracts
         /// <param name="key">The key of the item in the cache.</param>
         /// <param name="item">The retrieved item if found in the cache, otherwise the default value of the type.</param>
         /// <returns>The task result contains a boolean indicating whether the item was found in the cache.</returns>
-        Task<bool> TryGetAsync<T>(string key, out T item);
+        Task<(bool, T item)> TryGetAsync<T>(string key);
 
         /// <summary>
         /// Retrieves an item from the cache by the specified key.
-        /// Throws an exception if the item does not exist.
         /// </summary>
         /// <typeparam name="T">The type of the item to retrieve.</typeparam>
         /// <param name="key">The key of the item in the cache.</param>
         /// <returns>The task result contains the item retrieved from the cache.</returns>
         Task<T> GetAsync<T>(string key);
+
+        /// <summary>
+        /// Removes an item from the cache by the specified key.
+        /// </summary>
+        /// <param name="key">The key of the item in the cache.</param>
+        Task RemoveAsync(string key);
 
         /// <summary>
         /// Adds an item to the cache with the specified key.

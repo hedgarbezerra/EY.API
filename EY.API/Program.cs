@@ -26,6 +26,7 @@ namespace EY.API
 
             builder.Services.AddAttributeMappedServices();
             builder.Services.AddAPIVersioning(builder.Configuration);
+            builder.Services.AddRedisDistributedCache();
             builder.Services.AddAPIResiliencePipeline(logger);
             builder.Services.AddAPIRateLimiter();
             builder.Services.AddEntityFramework(builder.Configuration);

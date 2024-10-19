@@ -16,6 +16,8 @@ namespace EY.API.Configurations
 {
     public static class APIServiceCollectionExtensions
     {
+
+
         /// <summary>
         /// Enables usage of Azure's App Configurations for managing app settings on cloud
         /// </summary>
@@ -46,6 +48,35 @@ namespace EY.API.Configurations
             });
 
             services.AddAzureAppConfiguration();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Enables distributed cache with Redis
+        /// </summary>
+        /// <param name="services">Collection of services on DI container</param>
+        /// <returns>List of services</returns>
+        /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
+        public static IServiceCollection AddRedisDistributedCache(this IServiceCollection services)
+        {
+            var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
+
+            if (redisOptions is null)
+                throw new ApplicationException("Unable to load Rate Limiting options.");
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.InstanceName = redisOptions.Instance;
+                options.Configuration = redisOptions.ConnectionString;
+                options.ConfigurationOptions = new()
+                {
+                    IncludeDetailInExceptions = true,
+                    IncludePerformanceCountersInExceptions = true,
+                    AbortOnConnectFail = true,
+                };
+
+            });
 
             return services;
         }

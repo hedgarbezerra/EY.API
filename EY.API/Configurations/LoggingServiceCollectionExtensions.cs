@@ -10,6 +10,13 @@ namespace EY.API.Configurations
 {
     public static class LoggingServiceCollectionExtensions
     {
+        /// <summary>
+        /// Enables connection to OpenTelemetry providers
+        /// </summary>
+        /// <param name="services">Collection of services on DI container</param>
+        /// <param name="logger">Application logger builder to add new logger</param>
+        /// <returns>Collection of services</returns>
+        /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
         public static IServiceCollection AddOtlpLogging(this IServiceCollection services, ILoggingBuilder logger)
         {
             var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<OpenTelemetryOptions>>().Value;
