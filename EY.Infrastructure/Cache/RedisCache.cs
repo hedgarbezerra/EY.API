@@ -26,33 +26,33 @@ namespace EY.Infrastructure.Cache
             };
         }
 
-        public async Task AddAsync<T>(string key, T item)
+        public async Task AddAsync<T>(string key, T item, CancellationToken cancellationToken = default)
         {
             var content = JsonConvert.SerializeObject(item);
-            await _distributedCache.SetStringAsync(key, content, _distributedCacheEntryOptions);
+            await _distributedCache.SetStringAsync(key, content, _distributedCacheEntryOptions, cancellationToken);
         }
 
-        public async Task<T> GetAsync<T>(string key)
+        public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
         {
-            var content = await _distributedCache.GetStringAsync(key);
+            var content = await _distributedCache.GetStringAsync(key, cancellationToken);
             if (content is null)
                 return default;
 
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        public async Task<(bool, T item)> TryGetAsync<T>(string key)
+        public async Task<(bool, T? item)> TryGetAsync<T>(string key, CancellationToken cancellationToken = default)
         {
-            var content = await _distributedCache.GetStringAsync(key);
+            var content = await _distributedCache.GetStringAsync(key, cancellationToken);
             if (content is null)
                 return (false, default);
 
             return (true, JsonConvert.DeserializeObject<T>(content));
         }
 
-        public async Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
         {
-            await _distributedCache.RefreshAsync(key);
+            await _distributedCache.RefreshAsync(key, cancellationToken);
         }
     }
 }

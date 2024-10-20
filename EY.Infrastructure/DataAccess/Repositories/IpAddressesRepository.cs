@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace EY.Infrastructure.DataAccess.Repositories
 {
     [BindInterface(typeof(IRepository<IpAddress>))]
+    [BindInterface(typeof(ISqlExecutor<IpAddress>))]
+    [BindInterface(typeof(IRepositoryBulk<IpAddress>))]
     public class IpAddressesRepository : BaseRepository<IpAddress>
     {
         public IpAddressesRepository(AppDbContext dbContext) : base(dbContext)

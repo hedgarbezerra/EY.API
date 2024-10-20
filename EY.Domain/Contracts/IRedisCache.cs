@@ -21,7 +21,7 @@ namespace EY.Domain.Contracts
         /// <param name="key">The key of the item in the cache.</param>
         /// <param name="item">The retrieved item if found in the cache, otherwise the default value of the type.</param>
         /// <returns>The task result contains a boolean indicating whether the item was found in the cache.</returns>
-        Task<(bool, T item)> TryGetAsync<T>(string key);
+        Task<(bool, T? item)> TryGetAsync<T>(string key, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves an item from the cache by the specified key.
@@ -29,13 +29,13 @@ namespace EY.Domain.Contracts
         /// <typeparam name="T">The type of the item to retrieve.</typeparam>
         /// <param name="key">The key of the item in the cache.</param>
         /// <returns>The task result contains the item retrieved from the cache.</returns>
-        Task<T> GetAsync<T>(string key);
+        Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Removes an item from the cache by the specified key.
         /// </summary>
         /// <param name="key">The key of the item in the cache.</param>
-        Task RemoveAsync(string key);
+        Task RemoveAsync(string key, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds an item to the cache with the specified key.
@@ -45,6 +45,6 @@ namespace EY.Domain.Contracts
         /// <param name="key">The key under which the item will be stored in the cache.</param>
         /// <param name="item">The item to add to the cache.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task AddAsync<T>(string key, T item);
+        Task AddAsync<T>(string key, T item, CancellationToken cancellationToken = default);
     }
 }

@@ -1,13 +1,15 @@
 ﻿using EY.Domain.Contracts;
+using EY.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using OpenTelemetry.Resources;
 using Polly;
 using System;
 using System.Linq.Expressions;
 
 namespace EY.Infrastructure.DataAccess.Repositories
 {
-    public class BaseRepository<T> : ISqlExecutor<T>, IRepository<T> where T : class
+    public class BaseRepository<T> : ISqlExecutor<T>, IRepositoryBulk<T>, IRepository<T> where T : class
     {
         private readonly AppDbContext _dbContext;
 
@@ -15,18 +17,6 @@ namespace EY.Infrastructure.DataAccess.Repositories
         {
             _dbContext = dbContext;
         }
-        public void Add(T obj)
-        {
-            _dbContext.Set<T>().Add(obj);
-        }
-
-        public void Delete(int key)
-        {
-            T? entity = Get(key);
-            if (entity is not null)
-                _dbContext.Set<T>().Remove(entity);
-        }
-
         public IQueryable<T> Get(bool includeRelated = false)
         {
             var found = _dbContext.Set<T>().AsQueryable();
@@ -47,14 +37,32 @@ namespace EY.Infrastructure.DataAccess.Repositories
 
         public T? Get(int key) => _dbContext.Set<T>().Find(key);
 
-        public void Update(T obj)
+        public void Add(T entity)
         {
-            _dbContext.Set<T>().Update(obj);
+            _dbContext.Set<T>().Add(entity);
         }
+
+        public void Delete(int key)
+        {
+            T? entity = Get(key);
+            if (entity is not null)
+                _dbContext.Set<T>().Remove(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _dbContext.Set<T>().Update(entity);
+        }
+
 
         public IQueryable<T> Query(FormattableString query)=> _dbContext.Database.SqlQuery<T>(query);
         public IQueryable<T> Query(string sql, params object[] parameters)=> _dbContext.Database.SqlQueryRaw<T>(sql, parameters);
         public int Execute(FormattableString query) => _dbContext.Database.ExecuteSql(query);
+
+
+        public void BulkUpdate(params T[] entities) => _dbContext.Set<T>().UpdateRange(entities);
+        public void BulkDelete(params T[] entities) => _dbContext.Set<T>().RemoveRange(entities);
+
 
         protected IQueryable<T> IncludeAllRelatedEntities(IQueryable<T> query)
         {

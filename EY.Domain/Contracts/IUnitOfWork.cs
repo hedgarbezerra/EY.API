@@ -8,7 +8,6 @@ namespace EY.Domain.Contracts
 {
     /// <summary>
     /// This pattern helps to manage transactions across multiple repositories in a single business operation.
-    /// Implements the IDisposable interface to allow for resource cleanup.
     /// </summary>
     public interface IUnitOfWork : IDisposable
     {

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace EY.Infrastructure.DataAccess.Repositories
 {
     [BindInterface(typeof(IRepository<Country>))]
+    [BindInterface(typeof(ISqlExecutor<Country>))]
+    [BindInterface(typeof(IRepositoryBulk<Country>))]
     public class CountriesRepository : BaseRepository<Country>
     {
         public CountriesRepository(AppDbContext dbContext) : base(dbContext)

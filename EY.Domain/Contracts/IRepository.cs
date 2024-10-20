@@ -14,18 +14,6 @@ namespace EY.Domain.Contracts
     public interface IRepository<T> where T : class
     {
         /// <summary>
-        /// Adds a new entity to the data source.
-        /// </summary>
-        /// <param name="obj">The entity to add.</param>
-        void Add(T obj);
-
-        /// <summary>
-        /// Deletes an entity from the data source using its unique key.
-        /// </summary>
-        /// <param name="key">The unique identifier of the entity to delete.</param>
-        void Delete(int key);
-
-        /// <summary>
         /// Retrieves all entities of type T from the data source.
         /// </summary>
         /// <param name="includeRelated">If should load related entities(Foreign Keys).</param>
@@ -48,10 +36,22 @@ namespace EY.Domain.Contracts
         T? Get(int key);
 
         /// <summary>
+        /// Adds a new entity to the data source.
+        /// </summary>
+        /// <param name="entity">The entity to add.</param>
+        void Add(T entity);
+
+        /// <summary>
+        /// Deletes an entity from the data source using its unique key.
+        /// </summary>
+        /// <param name="key">The unique identifier of the entity to delete.</param>
+        void Delete(int key);
+
+        /// <summary>
         /// Updates an existing entity in the data source.
         /// </summary>
-        /// <param name="obj">The entity with updated values.</param>
-        void Update(T obj);
+        /// <param name="entity">The entity with updated values.</param>
+        void Update(T entity);
     }
 
 }

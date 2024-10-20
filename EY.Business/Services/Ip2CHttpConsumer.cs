@@ -22,12 +22,12 @@ namespace EY.Business.Services
             _httpConsumer = httpConsumer;
         }
 
-        public async Task<Result<Ip2CResponse>> GetIp(string ipAddress)
+        public async Task<Result<Ip2CResponse>> GetIp(string ipAddress, CancellationToken cancellationToken = default)
         {
             if (ipAddress.IsValidIpAddress())
                 return Result<Ip2CResponse>.Create(false, null, errors: [$"IP Address '{ipAddress}' not valid."]);
 
-            var response = await _httpConsumer.Get<string>(ipAddress);
+            var response = await _httpConsumer.Get<string>(ipAddress, cancellationToken: cancellationToken);
             if (response.Success && response.Data != null)
             {
                 var splitedContent = response.Data.Split(ResponseSeparator);
