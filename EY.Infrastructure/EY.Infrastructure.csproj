@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DataAccess\Interceptors\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\EY.Shared\EY.Shared.csproj" />
   </ItemGroup>
 

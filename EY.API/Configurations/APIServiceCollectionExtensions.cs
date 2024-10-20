@@ -95,6 +95,7 @@ namespace EY.API.Configurations
 
             services.AddDbContext<AppDbContext>(options =>
             {
+                options.UseLazyLoadingProxies(false);
                 options.EnableDetailedErrors();
                 options.UseSqlServer(connectionString, sqlOptions =>
                 {

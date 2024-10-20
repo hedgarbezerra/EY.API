@@ -19,7 +19,7 @@ namespace EY.API.Middlewares
             string requestedUri = httpContext.Request.GetDisplayUrl();
             _logger.LogError(exception, "Exception occurred at {RequestedUrl}: {Message} and was caught by global handler.", requestedUri, exception.Message);
 
-            var result = Result.Create(false, new List<string> { exception.Message }, new List<string>());
+            var result = Result.Create(false, errors:[ exception.Message ]);
             var jsonResult = JsonConvert.SerializeObject(result);
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

@@ -27,9 +27,23 @@ namespace EY.Infrastructure.DataAccess.Repositories
                 _dbContext.Set<T>().Remove(entity);
         }
 
-        public IQueryable<T> Get() => _dbContext.Set<T>().AsQueryable();
+        public IQueryable<T> Get(bool includeRelated = false)
+        {
+            var found = _dbContext.Set<T>().AsQueryable();
+            if(includeRelated)
+                IncludeAllRelatedEntities(found);
 
-        public IQueryable<T> Get(Expression<Func<T, bool>> filter) => Get().Where(filter);
+            return found;
+        }
+
+        public IQueryable<T> Get(Expression<Func<T, bool>> filter, bool includeRelated = false)
+        {
+            var found = Get().Where(filter);
+            if (includeRelated)
+                IncludeAllRelatedEntities(found);
+
+            return found;
+        }
 
         public T? Get(int key) => _dbContext.Set<T>().Find(key);
 
@@ -41,5 +55,22 @@ namespace EY.Infrastructure.DataAccess.Repositories
         public IQueryable<T> Query(FormattableString query)=> _dbContext.Database.SqlQuery<T>(query);
         public IQueryable<T> Query(string sql, params object[] parameters)=> _dbContext.Database.SqlQueryRaw<T>(sql, parameters);
         public int Execute(FormattableString query) => _dbContext.Database.ExecuteSql(query);
+
+        protected IQueryable<T> IncludeAllRelatedEntities(IQueryable<T> query)
+        {
+            var entityType = _dbContext.Model.FindEntityType(typeof(T));
+            if(entityType is null) 
+                return query;
+
+            var navigations = entityType.GetNavigations().Select(n => n.Name);
+
+            foreach (var navigation in navigations)
+            {
+                query = query.Include(navigation);
+            }
+
+            return query;
+        }
+
     }
 }

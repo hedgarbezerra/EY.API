@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using EY.Domain.Contracts;
+using EY.Domain.Entities;
 using EY.Domain.Models.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +14,22 @@ namespace EY.API.Controllers
     [EnableRateLimiting(RateLimitOptions.DEFAULT_POLICY)]
     public class CountriesController : ControllerBase
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public CountriesController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
 
         [HttpGet]
         [Route("{name}")]
         public ActionResult Get([FromRoute] string name)
         {
-            return Ok(name);
+            var repo = unitOfWork.Repository<Country>();
+
+            var country =  new Country() { Name = name , ThreeLetterCode = "NBA", TwoLetterCode = "NB"};
+            return Ok(country);
         }
     }
 }

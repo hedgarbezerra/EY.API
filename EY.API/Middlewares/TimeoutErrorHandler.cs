@@ -23,7 +23,7 @@ namespace EY.API.Middlewares
             string requestedUri = httpContext.Request.GetDisplayUrl();
             _logger.LogError(exception, "Requested Url '{RequestedUrl}' has timed out.", requestedUri);
 
-            var result = Result.Create(false, new List<string> { exception.Message }, new List<string>());
+            var result = Result.Create(false,  errors: [ exception.Message ]);
             var json = JsonConvert.SerializeObject(result); 
 
             httpContext.Response.StatusCode = StatusCodes.Status408RequestTimeout;

@@ -21,8 +21,8 @@ namespace EY.Domain.Models
             Successes = successes;
         }
 
-        public static Result<T> Create(bool success, T? data, List<string> errors, List<string> successes) =>
-            new Result<T>(success, data, errors, successes);
+        public static Result<T> Create(bool success, T? data, List<string> errors = null, List<string> successes = null) =>
+            new Result<T>(success, data, errors ?? [], successes ?? []);
     }
 
     public class Result
@@ -39,7 +39,7 @@ namespace EY.Domain.Models
             Successes = successes;
         }
 
-        public static Result Create(bool success, List<string> errors, List<string> successes) =>
-            new Result(success, errors, successes);
+        public static Result Create(bool success, List<string> errors = null, List<string> successes = null) =>
+            new Result(success, errors ?? [], successes ?? []);
     }
 }

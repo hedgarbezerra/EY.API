@@ -23,7 +23,6 @@ namespace EY.Domain
 
         public static class ConnectionStrings
         {
-            public const string AppConfigurations = "AzureAppConfigurations";
             public const string SqlServer = "SqlServerInstance";
         }
     }

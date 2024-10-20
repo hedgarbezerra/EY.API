@@ -28,15 +28,17 @@ namespace EY.Domain.Contracts
         /// <summary>
         /// Retrieves all entities of type T from the data source.
         /// </summary>
+        /// <param name="includeRelated">If should load related entities(Foreign Keys).</param>
         /// <returns>An IQueryable of all entities.</returns>
-        IQueryable<T> Get();
+        IQueryable<T> Get(bool includeRelated = false);
 
         /// <summary>
         /// Retrieves entities of type T that satisfy a specified filter condition.
         /// </summary>
         /// <param name="filter">An expression specifying the condition to filter the entities.</param>
+        /// <param name="includeRelated">If should load related entities(Foreign Keys).</param>
         /// <returns>An IQueryable of entities that match the filter condition.</returns>
-        IQueryable<T> Get(Expression<Func<T, bool>> filter);
+        IQueryable<T> Get(Expression<Func<T, bool>> filter, bool includeRelated = false);
 
         /// <summary>
         /// Retrieves a single entity of type T using its unique key.

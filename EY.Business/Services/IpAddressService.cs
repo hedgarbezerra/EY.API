@@ -13,13 +13,15 @@ namespace EY.Business.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRedisCache _redisCache;
-        private readonly IHttpConsumer _httpConsumer;
+        private readonly IIp2CHttpConsumer _httpConsumer;
 
-        public IpAddressService(IUnitOfWork unitOfWork, IRedisCache redisCache, IHttpConsumer httpConsumer)
+        public IpAddressService(IUnitOfWork unitOfWork, IRedisCache redisCache, IIp2CHttpConsumer httpConsumer)
         {
             _unitOfWork = unitOfWork;
             _redisCache = redisCache;
             _httpConsumer = httpConsumer;
         }
+
+
     }
 }
