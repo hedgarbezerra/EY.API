@@ -1,13 +1,17 @@
 ﻿using EY.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Polly;
+using System;
 using System.Linq.Expressions;
 
 namespace EY.Infrastructure.DataAccess.Repositories
 {
-    internal class BaseRepository<T> : IRepository<T> where T : class
+    public class BaseRepository<T> : ISqlExecutor<T>, IRepository<T> where T : class
     {
         private readonly AppDbContext _dbContext;
 
-        internal BaseRepository(AppDbContext dbContext)
+        public BaseRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -33,5 +37,9 @@ namespace EY.Infrastructure.DataAccess.Repositories
         {
             _dbContext.Set<T>().Update(obj);
         }
+
+        public IQueryable<T> Query(FormattableString query)=> _dbContext.Database.SqlQuery<T>(query);
+        public IQueryable<T> Query(string sql, params object[] parameters)=> _dbContext.Database.SqlQueryRaw<T>(sql, parameters);
+        public int Execute(FormattableString query) => _dbContext.Database.ExecuteSql(query);
     }
 }

@@ -50,15 +50,6 @@ namespace EY.Domain.Contracts
         /// </summary>
         /// <param name="obj">The entity with updated values.</param>
         void Update(T obj);
-
-        /// <summary>
-        /// (TODO): Consider exposing the database connection or methods to execute stored procedures or raw queries.
-        /// </summary>
-        /// <remarks>
-        /// If needed, a method like <c>GetConnection()</c> could be added to provide direct access to the database 
-        /// connection for executing custom queries or stored procedures.
-        /// </remarks>
-        // DbConnection GetConnection();
     }
 
 }

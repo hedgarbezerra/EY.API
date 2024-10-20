@@ -10,6 +10,10 @@ namespace EY.Domain
     {
         public static class Options
         {
+            public static class Tasks
+            {
+                public const string IpAddressUpdater_RepeatInMinutesKey = "Tasks:IpAddressUpdater:RepeatEveryMinutes";
+            }
             public static class Api
             {
                 public const string VersionKey = "API:Version";

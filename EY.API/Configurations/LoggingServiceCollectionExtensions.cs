@@ -1,4 +1,5 @@
 ﻿using EY.Domain.Models.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
@@ -17,7 +18,7 @@ namespace EY.API.Configurations
         /// <param name="logger">Application logger builder to add new logger</param>
         /// <returns>Collection of services</returns>
         /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
-        public static IServiceCollection AddOtlpLogging(this IServiceCollection services, ILoggingBuilder logger)
+        public static IServiceCollection AddOtlpLogging(this IServiceCollection services)
         {
             var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<OpenTelemetryOptions>>().Value;
             var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
@@ -38,21 +39,23 @@ namespace EY.API.Configurations
                     .AddAspNetCoreInstrumentation()
                     .AddConsoleExporter()
                     .AddOtlpExporter(options => ConfigureOpenTelemetryFunction(options, otlpOptions)))
-                .WithMetrics(metrics => metrics
-                    .AddAspNetCoreInstrumentation()
-                    .AddConsoleExporter()
-                    .AddOtlpExporter(options => ConfigureOpenTelemetryFunction(options, otlpOptions)))
                 .WithLogging(logging => logging
                     .AddConsoleExporter()
                     .AddOtlpExporter(options => ConfigureOpenTelemetryFunction(options, otlpOptions)));
 
-            logger.AddOpenTelemetry(logging =>
-            {
-                logging.IncludeScopes = true;
-                logging.IncludeFormattedMessage = true;
-                logging.AddOtlpExporter(options => ConfigureOpenTelemetryFunction(options, otlpOptions));
-            });
-
+            services.AddLogging(builder =>
+               builder.AddOpenTelemetry(options =>
+               {
+                   options.IncludeFormattedMessage = true;
+                   options.IncludeScopes = true;
+                   options.AddConsoleExporter();
+                   options.AddOtlpExporter(exporter =>
+                   {
+                       exporter.Endpoint = new Uri(otlpOptions.Endpoint);
+                       exporter.Protocol = OtlpExportProtocol.HttpProtobuf;
+                       exporter.Headers = $"X-Seq-ApiKey={otlpOptions.Key}";
+                   });
+               }));
             return services;
         }
 

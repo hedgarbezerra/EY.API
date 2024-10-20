@@ -1,26 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EY.Domain.Entities;
+using EY.Infrastructure.DataAccess.EntitiesMaps;
+using Microsoft.EntityFrameworkCore;
 
 namespace EY.Infrastructure.DataAccess
 {
     public class AppDbContext : DbContext
     {
+        /// <summary>
+        /// Code representation for database table for Countries
+        /// </summary>
+        public DbSet<Country> Countries { get; set; }
 
-        public AppDbContext()
-        {            
-        }
+        /// <summary>
+        /// Code representation for database table for IP Addresses
+        /// </summary>
+        public DbSet<IpAddress> IpAddresses { get; set; } 
+
         public AppDbContext(DbContextOptions options) : base(options)
         {            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //TODO: Add maps inherited from EntityMapper
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new CountryEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new IpAddressEntityConfiguration());
         }
     }
 }

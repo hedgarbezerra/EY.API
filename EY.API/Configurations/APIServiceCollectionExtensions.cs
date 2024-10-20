@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using EY.Infrastructure.DataAccess;
 using EY.Shared.Extensions;
+using EY.Business.Services;
+using EY.Shared;
+using EY.Business;
+using EY.Infrastructure;
 
 namespace EY.API.Configurations
 {
@@ -58,6 +62,7 @@ namespace EY.API.Configurations
         /// <param name="services">Collection of services on DI container</param>
         /// <returns>List of services</returns>
         /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
+        /// <remarks>Could opt to use Memory cache with services.AddDistributedMemoryCache() extension</remarks>
         public static IServiceCollection AddRedisDistributedCache(this IServiceCollection services)
         {
             var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
@@ -69,12 +74,6 @@ namespace EY.API.Configurations
             {
                 options.InstanceName = redisOptions.Instance;
                 options.Configuration = redisOptions.ConnectionString;
-                options.ConfigurationOptions = new()
-                {
-                    IncludeDetailInExceptions = true,
-                    IncludePerformanceCountersInExceptions = true,
-                    AbortOnConnectFail = true,
-                };
 
             });
 
@@ -227,19 +226,22 @@ namespace EY.API.Configurations
         /// <returns>List of services</returns>
         public static IServiceCollection AddAttributeMappedServices(this IServiceCollection services)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = new[] { typeof(Program).Assembly, typeof(SharedAssemblyBinder).Assembly,
+                typeof(BusinessAssemblyBinder).Assembly, typeof(InfrastructureAssemblyBinder).Assembly, };
+
             foreach (var assembly in assemblies)
             {
-                foreach (var type in assembly.GetTypes())
-                {
-                    var attrs = type.GetCustomAttributes<BindInterfaceAttribute>();
-                    if (!attrs.Any())
-                        continue;
+                var typesWithAttributes = assembly.GetTypes()
+                    .Where(type => type.GetCustomAttributes<BindInterfaceAttribute>().Any());
 
-                    foreach (var attr in attrs)
+                foreach (var type in typesWithAttributes)
+                {
+                    var attributes = type.GetCustomAttributes<BindInterfaceAttribute>();
+
+                    foreach (var attr in attributes)
                     {
-                        var serviceDescription = new ServiceDescriptor(attr.Interface, type, attr.Lifetime);
-                        services.Add(serviceDescription);
+                        var serviceDescriptor = new ServiceDescriptor(attr.Interface, type, attr.Lifetime);
+                        services.Add(serviceDescriptor);
                     }
                 }
             }

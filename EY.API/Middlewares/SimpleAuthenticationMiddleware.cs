@@ -14,7 +14,7 @@ namespace EY.API.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             string authorization = context.Request.Headers["Authorization"];
-            if (string.IsNullOrWhiteSpace(authorization) && authorization.Equals("secret"))
+            if (!string.IsNullOrWhiteSpace(authorization) && authorization.Equals("secret"))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Unauthorized access! GET OUT!");

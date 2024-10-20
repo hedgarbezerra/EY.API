@@ -3,6 +3,9 @@ using EY.API.Middlewares;
 using EY.API.Configurations;
 using EY.Domain.Models.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Scalar.AspNetCore;
+using EY.API.BackgroundServices;
+using RestSharp;
 
 namespace EY.API
 {
@@ -21,16 +24,17 @@ namespace EY.API
             builder.Services.Configure<OpenTelemetryOptions>(builder.Configuration.GetSection(OpenTelemetryOptions.SettingsKey));
             builder.Services.Configure<RedisCacheOptions>(builder.Configuration.GetSection(RedisCacheOptions.SettingsKey));
 
-            builder.Services.AddOtlpLogging(builder.Logging);
+            builder.Services.AddOtlpLogging();
             var logger = builder.Services.BuildServiceProvider()?.GetRequiredService<ILogger<Program>>();
 
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<RestClient>();
             builder.Services.AddAttributeMappedServices();
-            builder.Services.AddAPIVersioning(builder.Configuration);
+            builder.Services.AddAPIVersioning(builder.Configuration);            
             builder.Services.AddRedisDistributedCache();
             builder.Services.AddAPIResiliencePipeline(logger);
             builder.Services.AddAPIRateLimiter();
             builder.Services.AddEntityFramework(builder.Configuration);
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -39,16 +43,24 @@ namespace EY.API
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
 
+            builder.Services.AddHostedService<IpAddressUpdaterTask>();
             var app = builder.Build();
+            logger.LogInformation("Done");
 
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger(options =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                options.RouteTemplate = "openapi/{documentName}.json";
+            });
+            app.MapScalarApiReference(options =>
+            {
+                options.ForceThemeMode = ThemeMode.Dark;
+                options.Theme = ScalarTheme.Purple;
+            });
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
+            app.UseExceptionHandler();
+            app.UseAzureAppConfiguration();
             app.UseCors(opt =>
             {
                 opt.AllowAnyHeader()

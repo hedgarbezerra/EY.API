@@ -14,100 +14,73 @@ namespace EY.Infrastructure.External
     {
         private readonly ResiliencePipeline _pipeline;
         private readonly RestClient _restClient;
-        public HttpConsumer(ResiliencePipelineProvider<string> pipelineProvider)
+
+        public HttpConsumer(ResiliencePipelineProvider<string> pipelineProvider, RestClient restClient)
         {
             _pipeline = pipelineProvider.GetPipeline(RetryPolicyOptions.DEFAULT_PIPELINE);
-            _restClient = new RestClient();
+            _restClient = restClient ?? throw new ArgumentNullException(nameof(restClient));
         }
 
         public async Task<Result<T>> Delete<T>(string url, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Delete);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
-
-            var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            var request = CreateRequest(url, Method.Delete, headers);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
         }
 
         public async Task<Result<T>> Get<T>(string url, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Get);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
-
-            var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            var request = CreateRequest(url, Method.Get, headers);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
         }
 
         public async Task<Result<T>> Post<T>(string url, List<KeyValuePair<string, object>> param, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Post);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
-
-            if (param is not null)
-            {
-                var body = param.Select(p => Parameter.CreateParameter(p.Key, p.Value, ParameterType.RequestBody));
-                request.AddOrUpdateParameters(body);
-            }
-
-            var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            var request = CreateRequest(url, Method.Post, headers, param);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
         }
 
         public async Task<Result<T>> Post<T>(string url, object param, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Delete);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
-
-            if(param is not null)
-                request.AddBody(param);
-
-            var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            var request = CreateRequest(url, Method.Post, headers, param);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
         }
 
         public async Task<Result<T>> Put<T>(string url, List<KeyValuePair<string, object>> param, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Delete);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
-
-            if (param is not null)
-            {
-                var body = param.Select(p => Parameter.CreateParameter(p.Key, p.Value, ParameterType.RequestBody));
-                request.AddOrUpdateParameters(body);
-            }
-
-            var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            var request = CreateRequest(url, Method.Put, headers, param);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
         }
 
         public async Task<Result<T>> Put<T>(string url, object param, List<KeyValuePair<string, string>> headers = null, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest(url, Method.Delete);
-            if (headers is not null)
-                request.AddOrUpdateHeaders(headers);
+            var request = CreateRequest(url, Method.Put, headers, param);
+            return await ExecuteRequestAsync<T>(request, cancellationToken);
+        }
 
-            if(param is not null)
-                request.AddBody(param);
+        private RestRequest CreateRequest(string url, Method method, List<KeyValuePair<string, string>> headers = null, object body = null)
+        {
+            var request = new RestRequest(url, method);
+            if (headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    request.AddHeader(header.Key, header.Value);
+                }
+            }
 
+            if (body != null)
+            {
+                request.AddJsonBody(body);
+            }
+
+            return request;
+        }
+
+        private async Task<Result<T>> ExecuteRequestAsync<T>(RestRequest request, CancellationToken cancellationToken)
+        {
             var response = await _pipeline.ExecuteAsync(async pipeCt => await _restClient.ExecuteAsync<T>(request, pipeCt), cancellationToken);
-            var result = response.FromRestResponse();
-
-            return result;
+            return response.FromRestResponse();
         }
     }
+
 }

@@ -16,5 +16,7 @@ namespace EY.Tests.Helpers
             var builder = new EntityTypeBuilder<T>(entityType);
             return builder;
         }
+
+        public static List<string> GetEntityProperties<T>() => typeof(T).GetProperties().Select(p => p.Name).ToList();
     }
 }
