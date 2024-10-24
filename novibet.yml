@@ -1,0 +1,51 @@
+version: "3.4"
+services:      
+  redis:
+    image: redis:latest
+    command: ["redis-server", "--requirepass", "@RedisPassword123"]
+    volumes:
+      - vol-redis:/data
+    ports:
+      - 6379:6379
+      
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - 5540:5540
+    depends_on:
+      - redis
+    volumes:
+      - vol-redis-insight:/data
+    environment:
+      - REDISINSIGHT_AUTH_USERNAME=redis
+      - REDISINSIGHT_AUTH_PASSWORD=@RedisPassword123
+
+  seq:
+    image: datalust/seq:latest
+    volumes: 
+      - vol-seq:/data
+    ports:
+      - 5341:5341
+      - 80:80 
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=@SeqPassword123
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=@SaPassword123
+      - MSSQL_PID=Express
+    ports:
+      - 1433:1433
+    volumes:
+      - vol-sqlserver:/var/opt/mssql
+
+volumes:
+  vol-redis:
+  vol-redis-insight:
+  vol-seq:
+  vol-sqlserver:
