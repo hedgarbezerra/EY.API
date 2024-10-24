@@ -75,9 +75,11 @@ Response to Client: The API returns the IP address information to the client.
 
 **There are few requirements for running the API locally, some settings are optional such as the "Azure" Section, all the others are required.**
 
-~*If opt to use Azure App Configuration, remove all entries except by the "Azure".*~
+*If opt to use Azure App Configuration, remove all entries except by the "Azure".*
 
-~*Otherwise, you may remove method invocation in EY.API > Program.cs"*~
+*Otherwise, you may remove method invocation in EY.API > Program.cs"*
+![image](https://github.com/user-attachments/assets/94a2dfcb-45a3-485d-9c32-0c3c3073be9e)
+
 ```
 {
   "Logging": {
