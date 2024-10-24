@@ -44,6 +44,15 @@ services:
     volumes:
       - vol-sqlserver:/var/opt/mssql
 
+  web.api:
+    image: novibetregisty.azurecr.io/eyapi:latest
+    ports:
+      - 80:80
+    depends_on:
+      - sqlserver
+      - redis
+      - redisinsight
+      - seq
 volumes:
   vol-redis:
   vol-redis-insight:
