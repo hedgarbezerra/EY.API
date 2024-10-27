@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace EY.Domain.Models
     public class Result<T> : Result
     {
         public T? Data { get; set; }
+        [JsonConstructor]
         private Result(bool successful, T? data, List<string> errors, List<string> successes) :base(successful, errors, successes)
         {
             Successful = successful;
@@ -32,6 +34,7 @@ namespace EY.Domain.Models
         public List<string> Errors { get; set; } = new List<string>();
         public List<string> Successes { get; set; } = new List<string>();
 
+        [JsonConstructor]
         protected Result(bool successful, List<string> errors, List<string> successes)
         {
             Successful = successful;

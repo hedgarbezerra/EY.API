@@ -1,0 +1,83 @@
+﻿using EY.Domain.Entities;
+using EY.Domain.Models;
+using EY.Infrastructure.DataAccess;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EY.IntegrationTests.Dependencies
+{
+    [TestFixture]
+    public class EntityFrameworkTests
+    {
+        private IntegrationsWebAppFactory _factory;
+        private HttpClient _client;
+        private AppDbContext _dbContext;
+
+        [OneTimeSetUp]
+        public async Task OneTimeSetUp()
+        {
+            _factory = new IntegrationsWebAppFactory();
+            await _factory.StartContainersAsync();
+
+            _client = _factory.CreateClient();
+
+            using var scope = _factory.Services.CreateScope();
+            _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            _dbContext.Database.EnsureCreated();
+        }
+
+        [OneTimeTearDown]
+        public async Task OneTimeTearDown()
+        {
+            await _factory.StopContainersAsync();
+            await _factory.DisposeAsync();
+            _dbContext.Database.EnsureDeleted();
+        }
+
+
+        [Test]
+        public async Task AddNewCountry_ShouldThrowException_TwoLetterCodeInvalid()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            dbContext.Database.EnsureCreated();
+
+            var country = new Country { Name = "Brazil", TwoLetterCode = "BRA", ThreeLetterCode = "BRA" };
+            // Seed database
+            dbContext.Countries.Add(country);
+            Func<Task> act = async () => await dbContext.SaveChangesAsync();
+            act.Should().ThrowAsync<ArgumentException>();
+
+
+            dbContext.Database.EnsureDeleted();
+        }
+
+        [Test]
+        public async Task SeedDatabase_ThenRetrieve_ShouldReturnSeededData()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var country = new Country { Name = "Brazil", TwoLetterCode = "BR", ThreeLetterCode = "BRA" };
+            // Seed database
+            dbContext.Countries.Add(country);
+            await dbContext.SaveChangesAsync();
+
+            // Act - Test retrieval from seeded database
+            var response = await _client.GetAsync("/api/countries/BRA");
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+            result.Should().NotBeEmpty();
+
+            Result<Country> convertedResult = JsonConvert.DeserializeObject<Result<Country>>(result);
+            country.Should().NotBeNull().And.BeEquivalentTo(country);
+        }
+    }
+}

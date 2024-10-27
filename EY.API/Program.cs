@@ -9,13 +9,12 @@ using Newtonsoft.Json;
 
 namespace EY.API
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //These two lines is optional if appsettings are populated
             builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(AzureOptions.SettingsKey));
             builder.Services.AddAzureAppConfiguration(builder.Configuration);
 
@@ -57,7 +56,11 @@ namespace EY.API
 
             builder.Services.AddHostedService<IpAddressUpdaterTask>();
             var app = builder.Build();
-            logger.LogInformation("Done");
+
+            if (builder.Environment.IsProduction() || builder.Environment.IsDevelopment())
+            {
+                app.UseAzureAppConfiguration();
+            }
 
             app.UseSwagger(options =>
             {
@@ -73,7 +76,6 @@ namespace EY.API
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.UseExceptionHandler();
-            app.UseAzureAppConfiguration();
             app.UseCors(opt =>
             {
                 opt.AllowAnyHeader()
@@ -81,7 +83,6 @@ namespace EY.API
                 .AllowAnyOrigin();
             });
             app.UseMiddleware<SimpleAuthenticationMiddleware>();
-
             app.UseRateLimiter();
 
             app.MapControllers();

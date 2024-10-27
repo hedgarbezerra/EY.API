@@ -25,6 +25,8 @@ namespace EY.API.Configurations
         {
             var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<OpenTelemetryOptions>>().Value;
             var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
+            if (otlpOptions is null || environment is null)
+                return services;
 
             Log.Logger = new LoggerConfiguration()
                  .Enrich.FromLogContext()

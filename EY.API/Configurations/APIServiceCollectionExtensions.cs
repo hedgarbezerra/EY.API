@@ -35,7 +35,7 @@ namespace EY.API.Configurations
         {
             var azureOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<AzureOptions>>().Value;
             if (azureOptions is null || string.IsNullOrWhiteSpace(azureOptions.AppConfigurations.ConnectionString))
-                throw new ApplicationException("Unable to Azure App Configuration's connection string.");
+                return services;
 
             var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
 
@@ -68,6 +68,9 @@ namespace EY.API.Configurations
         {
             var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
 
+            if (redisOptions is null)
+                return services;
+
             services.AddSingleton(_ => new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(redisOptions.CacheExpiracyInSeconds)
@@ -93,7 +96,7 @@ namespace EY.API.Configurations
         {
             var connectionString = configurations.GetConnectionString(Constants.ConnectionStrings.SqlServer);
             if(string.IsNullOrWhiteSpace(connectionString))
-                throw new ApplicationException("Unable to database's connection string.");
+                return services;
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -118,6 +121,8 @@ namespace EY.API.Configurations
         public static IServiceCollection AddAPIRateLimiter(this IServiceCollection services) 
         {
             var rateLimitOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+            if(rateLimitOptions is null)
+                return services;
 
             services.AddRateLimiter(opt =>
             {
@@ -148,6 +153,8 @@ namespace EY.API.Configurations
         public static IServiceCollection AddAPIResiliencePipeline(this IServiceCollection services, ILogger logger)
         {
             var retryOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RetryPolicyOptions>>().Value;
+            if (retryOptions is null)
+                return services;
 
             services.AddResiliencePipeline(RetryPolicyOptions.DEFAULT_PIPELINE, opt =>
             {

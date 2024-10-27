@@ -29,7 +29,7 @@ namespace EY.API.Controllers
         /// <param name="threeLetterCode">The three-letter country code to search for.</param>
         /// <param name="cancellationToken">Optional cancellation token to cancel the request.</param>
         /// <returns>ActionResult containing the Country entity.</returns>
-        [HttpGet("{threeLetterCode}")]
+        [HttpGet("{threeLetterCode:maxlength(3)}")]
         public async Task<IActionResult> GetByThreeLetterCode([FromRoute] string threeLetterCode, CancellationToken cancellationToken = default)
         {
             var result = await _countriesService.Get(threeLetterCode, cancellationToken);
