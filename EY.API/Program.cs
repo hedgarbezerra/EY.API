@@ -6,6 +6,8 @@ using EY.API.BackgroundServices;
 using RestSharp;
 using Serilog;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 namespace EY.API
 {
@@ -84,7 +86,10 @@ namespace EY.API
             });
             app.UseMiddleware<SimpleAuthenticationMiddleware>();
             app.UseRateLimiter();
-
+            app.UseHealthChecks("_health", new HealthCheckOptions
+            {
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
             app.MapControllers();
 
             app.Run();

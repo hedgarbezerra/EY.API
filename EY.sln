@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EY.Infrastructure", "EY.Inf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EY.Business", "EY.Business\EY.Business.csproj", "{9AA74BDA-F8F9-4D0D-B9E3-0CAA8B01F14D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EY.IntegrationTests", "EY.IntegrationTests\EY.IntegrationTests.csproj", "{37C4CCBB-B40C-4253-9F5C-BCEDC8F3CD2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EY.IntegrationTests", "EY.IntegrationTests\EY.IntegrationTests.csproj", "{37C4CCBB-B40C-4253-9F5C-BCEDC8F3CD2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
