@@ -33,10 +33,10 @@ namespace EY.API.Configurations
         public static IServiceCollection AddAzureAppConfiguration(this IServiceCollection services, ConfigurationManager configurationManager)
         {
             var azureOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<AzureOptions>>().Value;
-            if (azureOptions is null || string.IsNullOrWhiteSpace(azureOptions.AppConfigurations.ConnectionString))
+            var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
+            if (environment.IsEnvironment("Testing") || azureOptions is not { AppConfigurations: { ConnectionString: { Length: > 0 } } })
                 return services;
 
-            var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
 
             configurationManager.AddAzureAppConfiguration(config =>
             {
@@ -94,7 +94,7 @@ namespace EY.API.Configurations
         public static IServiceCollection AddEntityFramework(this IServiceCollection services, IConfiguration configurations)
         {
             var connectionString = configurations.GetConnectionString(Constants.ConnectionStrings.SqlServer);
-            if(string.IsNullOrWhiteSpace(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
                 return services;
 
             services.AddDbContext<AppDbContext>(options =>
@@ -117,10 +117,10 @@ namespace EY.API.Configurations
         /// <param name="services">Collection of services on DI container</param>
         /// <returns>List of services</returns>
         /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
-        public static IServiceCollection AddAPIRateLimiter(this IServiceCollection services) 
+        public static IServiceCollection AddAPIRateLimiter(this IServiceCollection services)
         {
             var rateLimitOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RateLimitOptions>>().Value;
-            if(rateLimitOptions is null)
+            if (rateLimitOptions is null)
                 return services;
 
             services.AddRateLimiter(opt =>
