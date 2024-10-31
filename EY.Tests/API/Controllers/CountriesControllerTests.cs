@@ -1,6 +1,6 @@
 ﻿using EY.API.Controllers;
 using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
 using EY.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -47,7 +47,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var countryCode = "USA";
-            var result = Result<Country>.Failure(new List<string> { "Country not found" });
+            var result = Result<Country>.Failure("Country not found");
             _countriesService.Get(countryCode).Returns(result);
 
             // Act
@@ -82,7 +82,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var pagination = new PaginationInput(1, 10);
-            var result = Result<PaginatedList<Country>>.Failure(new List<string> { "Pagination error" });
+            var result = Result<PaginatedList<Country>>.Failure("Pagination error");
             _countriesService.Get(pagination).Returns(result);
 
             // Act
@@ -116,7 +116,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var country = new CountryInput("Brazil", "BR", "BRA");
-            var result = Result.Failure(new List<string> { "Error adding country" });
+            var result = Result.Failure("Error adding country");
             _countriesService.Add(country).Returns(result);
 
             // Act
@@ -148,7 +148,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var country = new CountryInput("Brazil", "BR", "BRA");
-            var result = Result.Failure(new List<string> { "Error updating country" });
+            var result = Result.Failure("Error updating country");
             _countriesService.Update(country).Returns(result);
 
             // Act
@@ -180,7 +180,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var countryCode = "USA";
-            var result = Result.Failure(new List<string> { "Error deleting country" });
+            var result = Result.Failure("Error deleting country");
             _countriesService.Delete(countryCode).Returns(result);
 
             // Act

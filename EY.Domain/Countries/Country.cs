@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using EY.Domain.IpAddresses;
 
-namespace EY.Domain.Entities
+namespace EY.Domain.Countries
 {
     public class Country
     {

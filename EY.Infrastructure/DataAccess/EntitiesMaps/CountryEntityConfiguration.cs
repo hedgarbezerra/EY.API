@@ -1,4 +1,4 @@
-using EY.Domain.Entities;
+using EY.Domain.Countries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

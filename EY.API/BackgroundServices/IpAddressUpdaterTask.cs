@@ -1,7 +1,8 @@
-﻿using EY.Business.Services;
+﻿using EY.Business.IpAddresses;
 using EY.Domain;
 using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
+using EY.Domain.IpAddresses;
 using EY.Infrastructure.DataAccess.Repositories;
 using System.Net;
 

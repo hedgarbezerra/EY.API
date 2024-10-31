@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using EY.Domain.Countries;
 
-namespace EY.Domain.Entities
+namespace EY.Domain.IpAddresses
 {
     public class IpAddress
     {
@@ -14,6 +15,6 @@ namespace EY.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         [JsonIgnore]
-        public virtual Country Country { get; set; } 
+        public virtual Country Country { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
 
 namespace EY.Tests.Infrastructure.DataAccess.Repositories
 {

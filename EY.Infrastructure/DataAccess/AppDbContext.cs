@@ -1,4 +1,5 @@
-﻿using EY.Domain.Entities;
+﻿using EY.Domain.Countries;
+using EY.Domain.IpAddresses;
 using EY.Infrastructure.DataAccess.EntitiesMaps;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;

@@ -1,4 +1,4 @@
-﻿using EY.Domain.Entities;
+﻿using EY.Domain.IpAddresses;
 using EY.Infrastructure.DataAccess.EntitiesMaps;
 using EY.Tests.Helpers;
 

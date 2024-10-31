@@ -1,6 +1,5 @@
 ﻿using Asp.Versioning;
 using EY.Domain.Contracts;
-using EY.Domain.Entities;
 using EY.Domain.Models;
 using EY.Domain.Models.Options;
 using Microsoft.AspNetCore.Http;

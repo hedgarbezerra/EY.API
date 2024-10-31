@@ -1,5 +1,6 @@
 ﻿using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
+using EY.Domain.IpAddresses;
 using EY.Domain.Models;
 using EY.Shared.Attributes;
 using OpenTelemetry.Resources;
@@ -10,7 +11,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EY.Business.Services
+namespace EY.Business.IpAddresses
 {
     [BindInterface(typeof(IIpAddressesService))]
     public class IpAddressService : IIpAddressesService
@@ -67,7 +68,7 @@ namespace EY.Business.Services
 
             var ip = repository.Get().SingleOrDefault(i => i.Ip == ipAddress);
             if (ip is null)
-                return Result.Failure([$"IP Address '{ipAddress}' not found."]);
+                return IpAddressesResults.Errors.IpNotFound(ipAddress);
 
             repository.Delete(ip.Id);
             _unitOfWork.Commit();
@@ -75,7 +76,7 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + ipAddress;
             _redisCache.RemoveAsync(cacheKey);
 
-            return Result.Success();
+            return IpAddressesResults.Deleted(ipAddress);
         }
 
         public async Task<Result<Ip2CResponse>> Get(string ipAddress, CancellationToken cancellationToken = default)
@@ -83,29 +84,35 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + ipAddress;
             var cachedIp = _redisCache.GetAsync<IpAddress>(cacheKey, CancellationToken.None).Result;
             if (cachedIp is not null)
-                return Result<Ip2CResponse>.Success(new Ip2CResponse(ipAddress, cachedIp.Country.Name, cachedIp.Country.TwoLetterCode, cachedIp.Country.ThreeLetterCode), [$"IP Address '{ipAddress}' found in cache."]);
+            {
+                var convertedCachedIp = new Ip2CResponse(ipAddress, cachedIp.Country.Name, cachedIp.Country.TwoLetterCode, cachedIp.Country.ThreeLetterCode);
+                return IpAddressesResults.FoundCache(convertedCachedIp);
+            }
 
             var repository = _unitOfWork.Repository<IpAddress>();
             var dbIp = repository.Get().FirstOrDefault(ip => ip.Ip == ipAddress);
             if (dbIp is not null)
             {
                 await _redisCache.AddAsync(cacheKey, dbIp, cancellationToken);
-                return Result<Ip2CResponse>.Success(new Ip2CResponse(ipAddress, dbIp.Country.Name, dbIp.Country.TwoLetterCode, dbIp.Country.ThreeLetterCode), [$"IP Address '{ipAddress}' found in database."]);
+                var dbConvertedIp = new Ip2CResponse(ipAddress, dbIp.Country.Name, dbIp.Country.TwoLetterCode, dbIp.Country.ThreeLetterCode);
+                return IpAddressesResults.FoundDatabase(dbConvertedIp);
             }
 
             var serviceIpResult = await _httpConsumer.GetIp(ipAddress, CancellationToken.None);
             if (!serviceIpResult.Successful)
-                return Result<Ip2CResponse>.Failure(serviceIpResult.Errors);
+                return serviceIpResult;
 
             var insertionResult = Add(new IpAddressInput(ipAddress, serviceIpResult.Data.CountryName, serviceIpResult.Data.CountryTwoLetterCode, serviceIpResult.Data.CountryThreeLetterCode));
 
             if (!insertionResult.Successful)
-                return Result<Ip2CResponse>.SuccessWithWarnings(serviceIpResult.Data, [], [$"IP Address found externally, but failed to be saved."]);
+                return Result<Ip2CResponse>.Success(serviceIpResult.Data, $"IP Address found externally, but failed to be saved.");
 
             dbIp = repository.Get().FirstOrDefault(ip => ip.Ip == ipAddress);
             await _redisCache.AddAsync(cacheKey, dbIp, cancellationToken);
 
-            return Result<Ip2CResponse>.Success(new Ip2CResponse(ipAddress, dbIp.Country.Name, dbIp.Country.TwoLetterCode, dbIp.Country.ThreeLetterCode), [$"IP Address '{ipAddress}' found externally."]);
+            var ip2CIp = new Ip2CResponse(ipAddress, dbIp.Country.Name, dbIp.Country.TwoLetterCode, dbIp.Country.ThreeLetterCode);
+
+            return IpAddressesResults.FoundExternally(ip2CIp);
         }
 
         public Result<PaginatedList<Ip2CResponse>> Get(PaginationInput pagination)
@@ -138,7 +145,7 @@ namespace EY.Business.Services
                                                                     ON ips.CountryId = c.Id
                                                                     WHERE c.TwoLetterCode in @CountryCodes
                                                                     GROUP BY c.Name
-                                                                    ORDER BY COUNT(ips.Id) DESC, MAX(ips.CreatedAt) DESC", new {CountryCodes = twoLetterCountriesCodes});
+                                                                    ORDER BY COUNT(ips.Id) DESC, MAX(ips.CreatedAt) DESC", new { CountryCodes = twoLetterCountriesCodes });
 
             return Result<List<IpAddressReportItem>>.Success(query.ToList(), [$"Report returned a total of {query.Count()} rows."]);
         }
@@ -150,7 +157,7 @@ namespace EY.Business.Services
 
             IpAddress ip = ipRepository.Get().FirstOrDefault(ip => ip.Ip == ipAddress.IpAddress);
             if (ip is null)
-                return Result.Failure([$"IP Address '{ipAddress.IpAddress}' does not exists on database."]);
+                return IpAddressesResults.Errors.IpNotFound(ipAddress.IpAddress);
 
             var country = countriesRepository.Get().FirstOrDefault(c => c.ThreeLetterCode == ipAddress.CountryThreeLetterCode);
             if (country is null)
@@ -171,7 +178,7 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + ipAddress;
             _redisCache.AddAsync(cacheKey, ip);
 
-            return Result.Success([$"IP Address '{ipAddress.IpAddress}' updated."]);
+            return IpAddressesResults.Updated(ipAddress.IpAddress);
         }
     }
 }

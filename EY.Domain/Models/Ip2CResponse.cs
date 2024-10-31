@@ -1,4 +1,4 @@
-﻿using EY.Domain.Entities;
+﻿using EY.Domain.IpAddresses;
 using System;
 using System.Collections.Generic;
 using System.Linq;

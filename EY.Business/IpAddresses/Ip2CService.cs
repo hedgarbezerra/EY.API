@@ -1,4 +1,5 @@
 ﻿using EY.Domain.Contracts;
+using EY.Domain.IpAddresses;
 using EY.Domain.Models;
 using EY.Shared.Attributes;
 using EY.Shared.Extensions;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EY.Business.Services
+namespace EY.Business.IpAddresses
 {
     [BindInterface(typeof(IIp2CService))]
     public class Ip2CService : IIp2CService
@@ -26,7 +27,7 @@ namespace EY.Business.Services
         public async Task<Result<Ip2CResponse>> GetIp(string ipAddress, CancellationToken cancellationToken = default)
         {
             if (!ipAddress.IsValidIpAddress())
-                return Result<Ip2CResponse>.Failure(errors: [$"IP Address '{ipAddress}' not valid."]);
+                return IpAddressesResults.Errors.IpNotValid(ipAddress);
 
             var response = await _httpConsumer.Get<string>($"{Ip2CBaseURL}/{ipAddress}", cancellationToken: cancellationToken);
             if (response.Successful && response.Data != null)

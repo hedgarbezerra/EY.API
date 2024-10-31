@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EY.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,6 @@ using System.Threading.Tasks;
 
 namespace EY.Tests.Domain.Models
 {
-    using EY.Domain.Models;
-    using FluentAssertions;
-    using NUnit.Framework;
-    using System.Collections.Generic;
-
     [TestFixture]
     public class ResultTests
     {
@@ -18,10 +14,10 @@ namespace EY.Tests.Domain.Models
         public void Result_Success_ShouldIndicateSuccess()
         {
             // Arrange
-            var successes = new List<string> { "Operation completed successfully." };
+            var successes = new List<string> {  };
 
             // Act
-            var result = Result.Success(successes);
+            var result = Result.Success([..successes]);
 
             // Assert
             result.Successful.Should().BeTrue();
@@ -36,7 +32,7 @@ namespace EY.Tests.Domain.Models
             var errors = new List<string> { "An error occurred." };
 
             // Act
-            var result = Result.Failure(errors);
+            var result = Result.Failure([..errors]);
 
             // Assert
             result.Successful.Should().BeFalse();
@@ -52,7 +48,7 @@ namespace EY.Tests.Domain.Models
             var successes = new List<string> { "Data retrieved successfully." };
 
             // Act
-            var result = Result<string>.Success(data, successes);
+            var result = Result<string>.Success(data, [..successes]);
 
             // Assert
             result.Successful.Should().BeTrue();
@@ -68,7 +64,7 @@ namespace EY.Tests.Domain.Models
             var errors = new List<string> { "Failed to retrieve data." };
 
             // Act
-            var result = Result<string>.Failure(errors);
+            var result = Result<string>.Failure([..errors]);
 
             // Assert
             result.Successful.Should().BeFalse();

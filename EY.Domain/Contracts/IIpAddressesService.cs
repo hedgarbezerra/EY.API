@@ -1,5 +1,4 @@
-﻿using EY.Domain.Entities;
-using EY.Domain.Models;
+﻿using EY.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

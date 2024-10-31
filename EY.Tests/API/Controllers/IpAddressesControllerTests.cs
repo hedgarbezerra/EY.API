@@ -1,6 +1,6 @@
 ﻿using EY.API.Controllers;
 using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.IpAddresses;
 using EY.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -49,7 +49,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = "192.168.0.1";
-            var result = Result<Ip2CResponse>.Failure(new List<string> { "Not Found" });
+            var result = Result<Ip2CResponse>.Failure("Not Found");
 
             _ipAddressesService.Get(ipAddress).Returns(Task.FromResult(result));
 
@@ -88,7 +88,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var paginationInput = new PaginationInput(1, 10);
-            var result = Result<PaginatedList<Ip2CResponse>>.Failure(new List<string> { "Invalid page" });
+            var result = Result<PaginatedList<Ip2CResponse>>.Failure("Invalid page");
 
             _ipAddressesService.Get(paginationInput).Returns(result);
 
@@ -127,7 +127,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = new IpAddressInput("192.168.0.1", "Brazil", "BR", "BRA");
-            var result = Result<IpAddress>.Failure(new List<string> { "Add failed" });
+            var result = Result<IpAddress>.Failure("Add failed");
 
             _ipAddressesService.Add(ipAddress).Returns(result);
 
@@ -164,7 +164,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = new IpAddressInput("192.168.0.1", "Brazil", "BR", "BRA");
-            var result = Result.Failure(new List<string> { "Update failed" });
+            var result = Result.Failure("Update failed");
 
             _ipAddressesService.Update(ipAddress).Returns(result);
 
@@ -201,7 +201,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = "192.168.0.1";
-            var result = Result<IpAddress>.Failure(new List<string> { "Delete failed" });
+            var result = Result<IpAddress>.Failure("Delete failed");
 
             _ipAddressesService.Delete(ipAddress).Returns(result);
 
@@ -240,7 +240,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var countries = new[] { "US", "CA" };
-            var result = Result<List<IpAddressReportItem>>.Failure(new List<string> { "Report generation failed" });
+            var result = Result<List<IpAddressReportItem>>.Failure("Report generation failed");
 
             _ipAddressesService.Report(countries).Returns(result);
 

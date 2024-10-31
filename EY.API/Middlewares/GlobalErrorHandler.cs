@@ -29,14 +29,25 @@ namespace EY.API.Middlewares
             string requestedUri = _urlHelper.GetDisplayUrl(httpContext.Request);
             _logger.LogError(exception, "Exception occurred at {RequestedUrl}: {Message} and was caught by global handler.", requestedUri, exception.Message);
 
-            var result = Result.Failure([ exception.Message ]);
-            var jsonResult = _jsonHandler.Serialize(result);
 
-            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            httpContext.Response.ContentType = "application/json";
+            var extensions = new Dictionary<string, object>()
+            {
+                ["Trace"] = httpContext.TraceIdentifier
+            };
+            var problems = Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                detail: exception.Message,
+                title: "An error occurred while processing your request.",
+                extensions: extensions);
 
-            await httpContext.Response.WriteAsync(jsonResult, cancellationToken);
+            await problems.ExecuteAsync(httpContext);
+            //var result = Result.Failure([ exception.Message ]);
+            //var jsonResult = _jsonHandler.Serialize(result);
 
+            //httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            //httpContext.Response.ContentType = "application/json";
+
+            //await httpContext.Response.WriteAsync(jsonResult, cancellationToken);
             return true;
         }
     }

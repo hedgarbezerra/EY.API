@@ -1,5 +1,5 @@
 ﻿using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
 using EY.Shared.Attributes;
 using System;
 using System.Collections.Generic;

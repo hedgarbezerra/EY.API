@@ -1,5 +1,5 @@
 ﻿using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
 using EY.Domain.Models;
 using EY.Shared.Attributes;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EY.Business.Services
+namespace EY.Business.Countries
 {
     [BindInterface(typeof(ICountriesService))]
     public class CountriesService : ICountriesService
@@ -52,8 +52,8 @@ namespace EY.Business.Services
             var countryRepository = _unitOfWork.Repository<Country>();
 
             var country = countryRepository.Get().SingleOrDefault(c => c.ThreeLetterCode == threeLetterCode);
-            if (country == null)
-                return Result.Failure([$"Country with code '{threeLetterCode}' not found."]);
+            if (country is null)
+                return CountriesResults.Errors.NotFound(threeLetterCode);
 
             countryRepository.Delete(country.Id);
             _unitOfWork.Commit();
@@ -61,7 +61,7 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + threeLetterCode;
             _redisCache.RemoveAsync(cacheKey);
 
-            return Result.Success();
+            return CountriesResults.Deleted(country.Name);
         }
 
         public async Task<Result<Country>> Get(string threeLetterCode, CancellationToken cancellationToken = default)
@@ -69,19 +69,19 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + threeLetterCode;
 
             var cachedCountry = await _redisCache.GetAsync<Country>(cacheKey, cancellationToken);
-            if (cachedCountry != null)
-                return Result<Country>.Success(cachedCountry, [$"Country '{threeLetterCode}' found in cache."]);
+            if (cachedCountry is not null)
+                return CountriesResults.FoundCache(cachedCountry);
 
             var countryRepository = _unitOfWork.Repository<Country>();
 
             var country = countryRepository.Get().FirstOrDefault(c => c.ThreeLetterCode == threeLetterCode);
-            if (country != null)
+            if (country is not null)
             {
                 await _redisCache.AddAsync(cacheKey, country, cancellationToken);
-                return Result<Country>.Success(country, [$"Country '{threeLetterCode}' found in database."]);
+                return CountriesResults.FoundDatabase(country);
             }
 
-            return Result<Country>.Failure([$"Country with code '{threeLetterCode}' not found."]);
+            return CountriesResults.Errors.NotFound(threeLetterCode);
         }
 
         public Result<PaginatedList<Country>> Get(PaginationInput pagination)
@@ -109,7 +109,7 @@ namespace EY.Business.Services
 
             var existingCountry = countryRepository.Get().FirstOrDefault(c => c.ThreeLetterCode == country.ThreeLetterCode);
             if (existingCountry == null)
-                return Result.Failure([$"Country with code '{country.ThreeLetterCode}' not found."]);
+                return CountriesResults.Errors.NotFound(country.ThreeLetterCode);
 
             existingCountry.Name = country.Name;
             existingCountry.TwoLetterCode = country.TwoLetterCode;
@@ -120,7 +120,7 @@ namespace EY.Business.Services
             string cacheKey = CachePrefix + country.ThreeLetterCode;
             _redisCache.AddAsync(cacheKey, existingCountry);
 
-            return Result.Success([$"Country with code '{country.ThreeLetterCode}' updated successfully."]);
+            return CountriesResults.Updated(country.Name);
         }
     }
 

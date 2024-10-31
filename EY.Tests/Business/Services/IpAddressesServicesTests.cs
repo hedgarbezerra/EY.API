@@ -1,6 +1,7 @@
-﻿using EY.Business.Services;
+﻿using EY.Business.IpAddresses;
 using EY.Domain.Contracts;
-using EY.Domain.Entities;
+using EY.Domain.Countries;
+using EY.Domain.IpAddresses;
 using EY.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -114,7 +115,7 @@ namespace EY.Tests.Business.Services
             // Assert
             result.Should().NotBeNull();
             result.Successful.Should().BeFalse();
-            result.Errors.Should().Contain($"IP Address '{ipAddress}' not found.");
+            result.Errors.Should().Contain($"IP address '{ipAddress}' not found.");
             ipRepository.DidNotReceive().Delete(Arg.Any<int>());
             _unitOfWork.DidNotReceive().Commit();
             _redisCache.DidNotReceive().RemoveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
@@ -252,7 +253,7 @@ namespace EY.Tests.Business.Services
             // Assert
             result.Should().NotBeNull();
             result.Successful.Should().BeFalse();
-            result.Errors.Should().Contain($"IP Address '{ipAddressInput.IpAddress}' does not exists on database.");
+            result.Errors.Should().Contain($"IP address '{ipAddressInput.IpAddress}' not found.");
             _unitOfWork.DidNotReceive().Commit();
         }
     }

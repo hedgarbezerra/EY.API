@@ -1,4 +1,5 @@
-﻿using EY.Domain.Entities;
+﻿using EY.Domain.Countries;
+using EY.Domain.IpAddresses;
 using EY.Domain.Models;
 using EY.Infrastructure.DataAccess;
 using FluentAssertions;

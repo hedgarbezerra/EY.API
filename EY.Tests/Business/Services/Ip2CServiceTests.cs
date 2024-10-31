@@ -1,4 +1,4 @@
-﻿using EY.Business.Services;
+﻿using EY.Business.IpAddresses;
 using EY.Domain.Contracts;
 using EY.Domain.Models;
 using System;
@@ -33,7 +33,7 @@ namespace EY.Tests.Business.Services
 
             // Assert
             result.Successful.Should().BeFalse();
-            result.Errors.Should().Contain($"IP Address '{invalidIp}' not valid.");
+            result.Errors.Should().Contain($"IP address '{invalidIp}' is not valid.");
         }
 
         [Test]
