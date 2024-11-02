@@ -8,6 +8,7 @@ using Serilog;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
+using EY.Infrastructure.Contracts;
 
 namespace EY.API
 {
@@ -28,18 +29,7 @@ namespace EY.API
             builder.Services.AddSerilogLogging();
             var logger = builder.Services.BuildServiceProvider()?.GetRequiredService<ILogger<Program>>();
 
-            builder.Services.AddScoped<IRestClient, RestClient>();
-            builder.Services.AddSingleton(_ => new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                Error = (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args) 
-                            => logger?.LogError(args.ErrorContext.Error,
-                                "An error occurred while serializing object type '{ObjectType}'. Reason: {ErrorReason}",
-                                args.ErrorContext.OriginalObject.GetType().FullName,
-                                args.ErrorContext.Error.Message),
-            });
+            builder.Services.AddScoped<IRestClient, RestClient>(_ => new RestClient());
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAttributeMappedServices();
@@ -48,7 +38,9 @@ namespace EY.API
             builder.Services.AddAPIResiliencePipeline(logger);
             builder.Services.AddAPIRateLimiter();
             builder.Services.AddEntityFramework(builder.Configuration);
-            builder.Services.AddControllers();
+            builder.Services.AddAPIHealthChecks(builder.Configuration);
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -59,7 +51,7 @@ namespace EY.API
             builder.Services.AddHostedService<IpAddressUpdaterTask>();
             var app = builder.Build();
 
-            if (builder.Environment.IsProduction() || builder.Environment.IsDevelopment())
+            if (builder.Environment.IsProduction())
             {
                 app.UseAzureAppConfiguration();
             }
@@ -86,11 +78,17 @@ namespace EY.API
             });
             app.UseMiddleware<SimpleAuthenticationMiddleware>();
             app.UseRateLimiter();
-            app.UseHealthChecks("_health", new HealthCheckOptions
+            app.UseHealthChecks("/_health", new HealthCheckOptions
             {
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();
+                migrator.Migrate();
+            }
 
             app.Run();
         }

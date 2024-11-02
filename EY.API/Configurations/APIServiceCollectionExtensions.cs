@@ -34,7 +34,7 @@ namespace EY.API.Configurations
         {
             var azureOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<AzureOptions>>().Value;
             var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
-            if (environment.IsEnvironment("Testing") || azureOptions is not { AppConfigurations: { ConnectionString: { Length: > 0 } } })
+            if (!environment.IsProduction() || azureOptions is not { AppConfigurations: { ConnectionString: { Length: > 0 } } })
                 return services;
 
 
@@ -44,7 +44,7 @@ namespace EY.API.Configurations
                     .ConfigureRefresh(opt =>
                     {
                         opt.Register(azureOptions.AppConfigurations.CacheSentinel, true);
-                        opt.SetRefreshInterval(TimeSpan.FromSeconds(azureOptions.AppConfigurations.CacheExpiracySeconds));
+                        opt.SetRefreshInterval(TimeSpan.FromSeconds(azureOptions.AppConfigurations.CacheExpiracySeconds.Value));
                     });
 
                 config.Select(KeyFilter.Any, LabelFilter.Null);

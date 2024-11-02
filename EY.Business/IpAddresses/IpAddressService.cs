@@ -56,7 +56,7 @@ namespace EY.Business.IpAddresses
 
             _unitOfWork.Commit();
 
-            string cacheKey = CachePrefix + ipAddress;
+            string cacheKey = CachePrefix + ipAddress.IpAddress;
             _redisCache.AddAsync(cacheKey, ipEntity);
 
             return Result.Success();
@@ -108,7 +108,6 @@ namespace EY.Business.IpAddresses
                 return Result<Ip2CResponse>.Success(serviceIpResult.Data, $"IP Address found externally, but failed to be saved.");
 
             dbIp = repository.Get().FirstOrDefault(ip => ip.Ip == ipAddress);
-            await _redisCache.AddAsync(cacheKey, dbIp, cancellationToken);
 
             var ip2CIp = new Ip2CResponse(ipAddress, dbIp.Country.Name, dbIp.Country.TwoLetterCode, dbIp.Country.ThreeLetterCode);
 

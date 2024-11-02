@@ -13,10 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["EY.API/EY.API.csproj", "EY.API/"]
-COPY ["EY.Business/EY.Business.csproj", "EY.Business/"]
-COPY ["EY.Domain/EY.Domain.csproj", "EY.Domain/"]
-COPY ["EY.Shared/EY.Shared.csproj", "EY.Shared/"]
-COPY ["EY.Infrastructure/EY.Infrastructure.csproj", "EY.Infrastructure/"]
 RUN dotnet restore "./EY.API/EY.API.csproj"
 COPY . .
 WORKDIR "/src/EY.API"
@@ -27,7 +23,6 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./EY.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

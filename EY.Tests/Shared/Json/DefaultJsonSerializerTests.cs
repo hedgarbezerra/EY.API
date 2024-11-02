@@ -1,5 +1,6 @@
 ﻿using EY.Domain.Models;
 using EY.Shared.Json;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NSubstitute.ExceptionExtensions;
 using System;
@@ -12,15 +13,15 @@ namespace EY.Tests.Shared.Json
 {
     public class DefaultJsonSerializerTests
     {
-        private JsonSerializerSettings _jsonSerializerSettings;
+        private ILogger<DefaultJsonSerializer> _logger;
         private DefaultJsonSerializer _jsonSerializer;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize JsonSerializerSettings and the DefaultJsonSerializer
-            _jsonSerializerSettings = new JsonSerializerSettings();
-            _jsonSerializer = new DefaultJsonSerializer(_jsonSerializerSettings);
+            _logger = Substitute.For<ILogger<DefaultJsonSerializer>>();
+            _jsonSerializer = new DefaultJsonSerializer(_logger);
         }
 
         [Test]
@@ -41,7 +42,7 @@ namespace EY.Tests.Shared.Json
         {
             // Arrange
             var entity = new { Id = 1, Name = "Test" };
-            var expectedJson = JsonConvert.SerializeObject(entity, _jsonSerializerSettings);
+            var expectedJson = JsonConvert.SerializeObject(entity);
 
             // Act
             var result = _jsonSerializer.Serialize(entity);

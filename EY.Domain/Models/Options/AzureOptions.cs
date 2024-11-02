@@ -26,6 +26,6 @@ namespace EY.Domain.Models.Options
         /// <summary>
         /// Time in seconds for the cache expiracy
         /// </summary>
-        public int CacheExpiracySeconds { get; set; }
+        public int? CacheExpiracySeconds { get; set; }
     }
 }

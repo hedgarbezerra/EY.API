@@ -1,0 +1,52 @@
+services:
+    redis:
+        image: redis:latest
+        volumes:
+          - vol-redis:/data
+        ports:
+          - 6379:6379
+      
+    redisinsight:
+        image: redis/redisinsight:latest
+        container_name: redisinsight
+        ports:
+          - 5540:5540
+        depends_on:
+          - redis
+        volumes:
+          - vol-redis-insight:/data
+
+    seq:
+        image: datalust/seq:latest
+        volumes: 
+          - vol-seq:/data
+        ports:
+          - 5341:5341
+          - 80:80 
+        environment:
+          - ACCEPT_EULA=Y
+
+    sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        container_name: sqlserver
+        environment:
+          - ACCEPT_EULA=Y
+          - MSSQL_PID=Express
+          - SA_PASSWORD=Strong_password_123!
+        ports:
+          - 1433:1433
+        volumes:
+          - vol-sqlserver:/var/opt/mssql
+
+    ey.api:
+        image: ${DOCKER_REGISTRY-}eyapi
+        build:
+          context: .
+          dockerfile: EY.API\Dockerfile
+    
+volumes:
+    vol-redis:
+    vol-redis-insight:
+    vol-seq:
+    vol-sqlserver:
+

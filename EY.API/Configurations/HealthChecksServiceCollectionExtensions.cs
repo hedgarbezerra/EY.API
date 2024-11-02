@@ -14,12 +14,6 @@ namespace EY.API.Configurations
             var connectionString = configuration.GetConnectionString(Constants.ConnectionStrings.SqlServer);
 
             services.AddHealthChecks()
-                .AddSeqPublisher(opt =>
-                {
-                    opt.Endpoint = otlpOptions.Endpoint;
-                    opt.ApiKey = otlpOptions.Key;
-                    opt.DefaultInputLevel = HealthChecks.Publisher.Seq.SeqInputLevel.Information;
-                })
                 .AddRedis(redisOptions.ConnectionString)
                 .AddDbContextCheck<AppDbContext>(failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy);
         }

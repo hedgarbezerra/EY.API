@@ -41,13 +41,7 @@ namespace EY.API.Middlewares
                 extensions: extensions);
 
             await problems.ExecuteAsync(httpContext);
-            //var result = Result.Failure([ exception.Message ]);
-            //var jsonResult = _jsonHandler.Serialize(result);
 
-            //httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            //httpContext.Response.ContentType = "application/json";
-
-            //await httpContext.Response.WriteAsync(jsonResult, cancellationToken);
             return true;
         }
     }

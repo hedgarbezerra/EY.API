@@ -29,13 +29,17 @@ namespace EY.API.Middlewares
             string requestedUri = _urlHelper.GetDisplayUrl(httpContext.Request);
             _logger.LogError(exception, "Requested Url '{RequestedUrl}' has timed out.", requestedUri);
 
-            var result = Result.Failure([ exception.Message ]);
-            var json = _jsonHandler.Serialize(result); 
+            var extensions = new Dictionary<string, object>()
+            {
+                ["Trace"] = httpContext.TraceIdentifier
+            };
+            var problems = Results.Problem(
+                statusCode: StatusCodes.Status408RequestTimeout,
+                detail: exception.Message,
+                title: "The request took too long to complete and was cancelled.",
+                extensions: extensions);
 
-            httpContext.Response.StatusCode = StatusCodes.Status408RequestTimeout;
-            httpContext.Response.ContentType = "application/json";
-
-            await httpContext.Response.WriteAsync(json, cancellationToken);
+            await problems.ExecuteAsync(httpContext);
 
             return true;
         }
