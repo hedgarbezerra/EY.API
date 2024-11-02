@@ -38,6 +38,8 @@ namespace EY.IntegrationTests.API
             await _factory.StopContainersAsync();
             await _factory.DisposeAsync();
             _dbContext.Database.EnsureDeleted();
+            _dbContext.Dispose();
+            _client.Dispose();
         }
 
         [Test]
