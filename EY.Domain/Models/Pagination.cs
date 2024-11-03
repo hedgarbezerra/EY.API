@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EY.Domain.Models
 {
-    public record PaginationInput([Required] int Index, [Required] int Size = 10, [MaxLength(255)] string Query = "")
+    public record PaginationInput([Required] int Index = 1, [Required] int Size = 10, [MaxLength(255)] string Query = "")
     {
     }
     public class PaginatedList<T>
