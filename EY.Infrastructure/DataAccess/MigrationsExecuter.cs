@@ -26,7 +26,7 @@ namespace EY.Infrastructure.DataAccess
             _logger = logger;
         }
 
-        public async void Migrate()
+        public void Migrate()
         {
             try
             {
