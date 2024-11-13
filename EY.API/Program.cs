@@ -78,6 +78,7 @@ namespace EY.API
             });
             app.UseMiddleware<SimpleAuthenticationMiddleware>();
             app.UseRateLimiter();
+            app.UseOutputCache();
             app.UseHealthChecks("/_health", new HealthCheckOptions
             {
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

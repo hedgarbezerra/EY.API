@@ -75,11 +75,14 @@ namespace EY.API.Configurations
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(redisOptions.CacheExpiracyInSeconds)
             });
 
-            services.AddOutputCache(options =>
-            {
-                options.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(redisOptions.CacheExpiracyInSeconds);
-            })
-                .AddStackExchangeRedisCache(options =>
+            services.AddOutputCache()
+                .AddStackExchangeRedisOutputCache(options =>
+                {
+                    options.InstanceName = redisOptions.Instance;
+                    options.Configuration = redisOptions.ConnectionString;
+                });
+            
+            services.AddStackExchangeRedisCache(options =>
                 {
                     options.InstanceName = redisOptions.Instance;
                     options.Configuration = redisOptions.ConnectionString;
