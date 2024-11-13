@@ -2,12 +2,13 @@
 using EY.Domain.Contracts;
 using EY.Domain.Models;
 using EY.Domain.Models.Options;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace EY.API.Controllers
 {
+    [OutputCache]
     [ApiVersion("1.0", Deprecated = false)]
     [Route("api/v{version:apiVersion}/countries")]
     [Route("api/countries")]
