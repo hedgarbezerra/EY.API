@@ -10,7 +10,7 @@ namespace EY.API.Configurations
         public static void AddAPIHealthChecks(this IServiceCollection services, IConfiguration configuration)
         {
             var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
-            var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<OpenTelemetryOptions>>().Value;
+            var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<SeqOpenTelemetryOptions>>().Value;
             var connectionString = configuration.GetConnectionString(Constants.ConnectionStrings.SqlServer);
 
             services.AddHealthChecks()

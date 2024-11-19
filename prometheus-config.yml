@@ -1,0 +1,18 @@
+﻿global:
+  scrape_interval: 15s # Intervalo de coleta das métricas
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'ey.api'
+    metrics_path: '/metrics' # Endereço do endpoint de métricas da API
+    static_configs:
+      - targets: ['ey.api:8080'] # Porta exposta da API no serviço Docker
+  
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis_exporter:9121']
+  
+  - job_name: 'keycloak'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['keycloak:9191']

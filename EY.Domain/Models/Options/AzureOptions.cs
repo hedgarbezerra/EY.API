@@ -10,7 +10,7 @@ namespace EY.Domain.Models.Options
     {
         public const string SettingsKey = "Azure";
 
-        public required AppConfigurations AppConfigurations { get; set; }
+        public required AppConfigurations AppConfigurations { get; init; }
     }
 
     public class AppConfigurations
@@ -18,14 +18,14 @@ namespace EY.Domain.Models.Options
         /// <summary>
         /// Connection string for the App Configurations on Azure
         /// </summary>
-        public required string ConnectionString { get; set; }
+        public required string ConnectionString { get; init; }
         /// <summary>
         /// Sentinel Key to keep cached keys updated
         /// </summary>
-        public required string CacheSentinel { get; set; }
+        public required string CacheSentinel { get; init; }
         /// <summary>
         /// Time in seconds for the cache expiracy
         /// </summary>
-        public int? CacheExpiracySeconds { get; set; }
+        public int? CacheExpiracySeconds { get; init; }
     }
 }

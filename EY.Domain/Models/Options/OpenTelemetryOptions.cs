@@ -9,19 +9,30 @@ namespace EY.Domain.Models.Options
     public class OpenTelemetryOptions
     {
         public const string SettingsKey = "OpenTelemetry";
+        public required string Source { get; init; }
+        public JaegerOpenTelemetryOptions Jaeger { get; set; }
+        public SeqOpenTelemetryOptions Seq { get; set; }
+    }
+    public class SeqOpenTelemetryOptions
+    {
+        public const string SettingsKey = "OpenTelemetry:Seq";
 
         /// <summary>
         /// Source of logs
         /// </summary>
-        public required string Source { get; set; }
         /// <summary>
         /// Endpoint to log
         /// </summary>
-        public required string Endpoint { get; set; }
+        public required string Endpoint { get; init; }
 
         /// <summary>
         /// Authentication key
         /// </summary>
-        public required string Key { get; set; }
+        public required string Key { get; init; }
+    }
+    public sealed class JaegerOpenTelemetryOptions
+    {
+        public const string SettingsKey = "OpenTelemetry:Jaeger";
+        public required string Endpoint { get; init; }
     }
 }

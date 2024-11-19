@@ -4,6 +4,7 @@ using EY.Domain.Contracts;
 using EY.Domain.Countries;
 using EY.Domain.IpAddresses;
 using EY.Infrastructure.DataAccess.Repositories;
+using System.Diagnostics;
 using System.Net;
 
 namespace EY.API.BackgroundServices
@@ -29,6 +30,7 @@ namespace EY.API.BackgroundServices
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     ILogger<IpAddressUpdaterTask> logger = scope.ServiceProvider.GetRequiredService<ILogger<IpAddressUpdaterTask>>();
                     IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                     IIp2CService ip2CService = scope.ServiceProvider.GetRequiredService<IIp2CService>();
@@ -36,7 +38,7 @@ namespace EY.API.BackgroundServices
 
                     try
                     {
-                        logger.LogInformation($"Running IP Addresses update task at {DateTime.UtcNow.ToShortTimeString()}");
+                        logger.LogInformation("Running IP Addresses update task at {ExecutionStartTime}", DateTimeOffset.Now.ToString("dd/MM/yyyy HH:mm:ss"));
                         List<string> ipAddressesToRemoveCache = [];
 
                         var ipsRepository = unitOfWork.Repository<IpAddress>();
@@ -64,7 +66,8 @@ namespace EY.API.BackgroundServices
                     }
                     finally
                     {
-                        logger.LogInformation($"Done executing IP Addresses update task at {DateTime.UtcNow.ToShortTimeString()}");
+                        stopwatch.Stop();
+                        logger.LogInformation("IP Addresses update task runned for {ExecutiongTimeInMs}ms and finished at {ExecutionFinishTime}", stopwatch.ElapsedMilliseconds, DateTimeOffset.Now.ToString("dd/MM/yyyy HH:mm:ss"));
                     }
                 }
             }

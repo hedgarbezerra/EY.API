@@ -14,19 +14,19 @@ namespace EY.Domain.Models.Options
         /// <summary>
         /// Number of retries that will be made after the first failed run
         /// </summary>
-        public required int MaxRetries { get; set; }
+        public required int MaxRetries { get; init; }
 
         /// <summary>
         /// Time in seconds between execution attempts 
         /// </summary>
-        public required int DelayInSeconds { get; set; }
+        public required int DelayInSeconds { get; init; }
         /// <summary>
         /// Maximum time in seconds between execution attempts (useful when time is exponential)
         /// </summary>
-        public required int MaxDelaySeconds { get; set; }
+        public required int MaxDelaySeconds { get; init; }
         /// <summary>
         /// Execution timeout in seconds
         /// </summary>
-        public required int TimeOutSeconds { get; set; }
+        public required int TimeOutSeconds { get; init; }
     }
 }

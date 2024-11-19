@@ -13,14 +13,14 @@ namespace EY.Domain.Models.Options
         /// <summary>
         /// Name of the Redis Instance
         /// </summary>
-        public required string Instance { get; set; }
+        public required string Instance { get; init; }
         /// <summary>
         /// Redis Connection String
         /// </summary>
-        public required string ConnectionString { get; set; }
+        public required string ConnectionString { get; init; }
         /// <summary>
         /// How long items will be cached in seconds
         /// </summary>
-        public required int CacheExpiracyInSeconds { get; set; }
+        public required int CacheExpiracyInSeconds { get; init; }
     }
 }

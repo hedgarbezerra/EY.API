@@ -15,6 +15,8 @@ using EY.Shared;
 using EY.Business;
 using EY.Infrastructure;
 using Microsoft.Extensions.Caching.Distributed;
+using EY.Shared.Extensions.ServiceCollection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace EY.API.Configurations
 {
@@ -56,41 +58,6 @@ namespace EY.API.Configurations
             return services;
         }
 
-        /// <summary>
-        /// Enables distributed cache with Redis
-        /// </summary>
-        /// <param name="services">Collection of services on DI container</param>
-        /// <returns>List of services</returns>
-        /// <exception cref="ApplicationException">In the case of appsettings not being configured</exception>
-        /// <remarks>Could opt to use Memory cache with services.AddDistributedMemoryCache() extension</remarks>
-        public static IServiceCollection AddRedisDistributedCache(this IServiceCollection services)
-        {
-            var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
-
-            if (redisOptions is null)
-                return services;
-
-            services.AddSingleton(_ => new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(redisOptions.CacheExpiracyInSeconds)
-            });
-
-            services.AddOutputCache()
-                .AddStackExchangeRedisOutputCache(options =>
-                {
-                    options.InstanceName = redisOptions.Instance;
-                    options.Configuration = redisOptions.ConnectionString;
-                });
-            
-            services.AddStackExchangeRedisCache(options =>
-                {
-                    options.InstanceName = redisOptions.Instance;
-                    options.Configuration = redisOptions.ConnectionString;
-
-                });
-
-            return services;
-        }
 
         /// <summary>
         /// Enables entity framework to manage databases
@@ -151,56 +118,6 @@ namespace EY.API.Configurations
         }
 
         /// <summary>
-        /// Enable default resilience pipeline with timeout and 
-        /// </summary>
-        /// <param name="services">Collection of services on DI container</param>
-        /// <param name="logger"></param>
-        /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
-        public static IServiceCollection AddAPIResiliencePipeline(this IServiceCollection services, ILogger logger)
-        {
-            var retryOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RetryPolicyOptions>>().Value;
-            if (retryOptions is null)
-                return services;
-
-            services.AddResiliencePipeline(RetryPolicyOptions.DEFAULT_PIPELINE, opt =>
-            {
-                //The order of the calls is the same as the order of execution. If you configure retry before timeout, retries will be made before canceling the request.
-                opt
-                .AddTimeout(new TimeoutStrategyOptions
-                {
-                    Timeout = TimeSpan.FromSeconds(retryOptions.TimeOutSeconds),
-                    OnTimeout = to =>
-                    {
-                        logger?.LogWarning("A execução para '{RequestUrl}' foi cancelada devido à demora na resposta do serviço requisitado.", to.Context.GetContextURL());
-                        return default;
-                    }
-                })
-                .AddRetry(new Polly.Retry.RetryStrategyOptions
-                {
-                    Delay = TimeSpan.FromSeconds(retryOptions.DelayInSeconds),
-                    MaxDelay = TimeSpan.FromSeconds(retryOptions.MaxDelaySeconds),
-                    MaxRetryAttempts = retryOptions.MaxRetries,
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(err => !err.IsAbortedRequestException()),
-                    BackoffType = DelayBackoffType.Exponential,
-                    UseJitter = true,
-                    OnRetry = rt =>
-                    {
-                        int attempt = rt.AttemptNumber + 1;
-                        if (attempt == retryOptions.MaxRetries)
-                            logger?.LogError(rt.Outcome.Exception,
-                                "Na última({AttemptNumber}) tentativa de execução da chamada para '{RequestUrl}', ainda ocorreu um erro, não sendo finalizada.",
-                                attempt, rt.Context.GetContextURL());
-
-                        return default;
-                    }
-                });
-            });
-
-            return services;
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="services">Collection of services on DI container</param>
@@ -231,32 +148,40 @@ namespace EY.API.Configurations
             return services;
         }
 
+
+        /// <summary>
+        /// Enables authentication and authorization through JWT
+        /// </summary>
+        /// <param name="services">Collection of services on DI container</param>
+        /// <returns>List of services</returns>
+        public static IServiceCollection AddAPIAuthentication(this IServiceCollection services)
+        {
+            var authenticationOptions = services.BuildServiceProvider().GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+
+            services.AddAuthorization()
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(KeycloakOptions.Schema, options =>
+                {
+
+                })
+                .AddJwtBearer(Auth0Options.Schema, options => 
+                {
+
+                });
+            return services;
+        }
+
         /// <summary>
         /// Adds every class using <see cref="BindInterfaceAttribute"/> attribute to DI container 
         /// </summary>
         /// <param name="services">Collection of services on DI container</param>
         /// <returns>List of services</returns>
-        public static IServiceCollection AddAttributeMappedServices(this IServiceCollection services)
+        public static IServiceCollection AddAPIMappedServices(this IServiceCollection services)
         {
             var assemblies = new[] { typeof(Program).Assembly, typeof(SharedAssemblyBinder).Assembly,
                 typeof(BusinessAssemblyBinder).Assembly, typeof(InfrastructureAssemblyBinder).Assembly, };
 
-            foreach (var assembly in assemblies)
-            {
-                var typesWithAttributes = assembly.GetTypes()
-                    .Where(type => type.GetCustomAttributes<BindInterfaceAttribute>().Any());
-
-                foreach (var type in typesWithAttributes)
-                {
-                    var attributes = type.GetCustomAttributes<BindInterfaceAttribute>();
-
-                    foreach (var attr in attributes)
-                    {
-                        var serviceDescriptor = new ServiceDescriptor(attr.Interface, type, attr.Lifetime);
-                        services.Add(serviceDescriptor);
-                    }
-                }
-            }
+            services.AddAttributeMappedServices(assemblies);
             return services;
         }
     }

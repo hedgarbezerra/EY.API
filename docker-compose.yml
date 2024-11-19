@@ -1,52 +1,110 @@
-services:
-    redis:
-        image: redis:latest
-        volumes:
-          - vol-redis:/data
-        ports:
-          - 6379:6379
-      
-    redisinsight:
-        image: redis/redisinsight:latest
-        container_name: redisinsight
-        ports:
-          - 5540:5540
-        depends_on:
-          - redis
-        volumes:
-          - vol-redis-insight:/data
+﻿services:
+  redis-cache:
+    image: redis:latest
+    container_name: redis
+    volumes:
+      - vol-redis:/data
+    ports:
+      - 6379:6379
 
-    seq:
-        image: datalust/seq:latest
-        volumes: 
-          - vol-seq:/data
-        ports:
-          - 5341:5341
-          - 80:80 
-        environment:
-          - ACCEPT_EULA=Y
+  redis_exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - 9121:9121
+    depends_on:
+      - redis-cache
 
-    sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        container_name: sqlserver
-        environment:
-          - ACCEPT_EULA=Y
-          - MSSQL_PID=Express
-          - SA_PASSWORD=Strong_password_123!
-        ports:
-          - 1433:1433
-        volumes:
-          - vol-sqlserver:/var/opt/mssql
+  redisinsight-ui:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - 5540:5540
+    depends_on:
+      - redis-cache
+    volumes:
+      - vol-redis-insight:/data
 
-    ey.api:
-        image: ${DOCKER_REGISTRY-}eyapi
-        build:
-          context: .
-          dockerfile: EY.API\Dockerfile
-    
+  sqlserver-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=Strong_password_123!
+    ports:
+      - 1433:1433
+    volumes:
+      - vol-sqlserver:/var/opt/mssql
+
+  seq-logging:
+    image: datalust/seq:latest
+    container_name: seq
+    volumes:
+      - vol-seq:/data
+    ports:
+      - 5341:5341
+      - 80:80
+    environment:
+      - ACCEPT_EULA=Y
+
+  jaeger-tracing:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 16686:16686
+
+  prometheus-metrics:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus-config.yml
+    volumes:
+      - ./prometheus-config.yml:/etc/prometheus/prometheus-config.yml:ro # arquivo de configuração
+      - vol-prometheus:/prometheus
+    ports:
+      - 9090:9090
+
+  ey.api:
+    image: ${DOCKER_REGISTRY-}eyapi
+    container_name: webapi
+    build:
+      context: .
+      dockerfile: EY.API\Dockerfile
+    # environment:
+    #   - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+
+  keycloak: #Development tests only
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev
+    container_name: keycloak
+    ports:
+      - 9191:8080
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=adminpassword
+      - KC_FEATURES=opentelemetry
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_TRACING_ENABLED=true
+      - KC_TRACING_ENDPOINT=http://jaeger:4317     
+      - KC_HTTP_ENABLED=true 
+      - KC_DB=mssql
+      - KC_DB_URL=jdbc:sqlserver://sqlserver:1433;databaseName=keycloak;encrypt=false;trustServerCertificate=true
+      - KC_DB_USERNAME=sa
+      - KC_DB_PASSWORD=Strong_password_123!
+      - KC_HOSTNAME=localhost # Define o hostname do Keycloak
+    depends_on:
+      - sqlserver-db
+
 volumes:
-    vol-redis:
-    vol-redis-insight:
-    vol-seq:
-    vol-sqlserver:
-
+  vol-redis:
+  vol-redis-insight:
+  vol-seq:
+  vol-sqlserver:
+  vol-prometheus:
+  

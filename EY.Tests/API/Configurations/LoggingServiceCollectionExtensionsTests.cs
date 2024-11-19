@@ -28,7 +28,7 @@ namespace EY.Tests.API.Configurations
         public void AddSerilogLogging_ShouldAddSerilogToServices()
         {
             // Arrange
-            var otlpOptions = Options.Create(new OpenTelemetryOptions
+            var otlpOptions = Options.Create(new SeqOpenTelemetryOptions
             {
                 Endpoint = "http://example.com",
                 Key = "sample-key",
@@ -53,7 +53,7 @@ namespace EY.Tests.API.Configurations
         public void AddOtlpLogging_ShouldAddOpenTelemetryToServices()
         {
             // Arrange
-            var otlpOptions = Options.Create(new OpenTelemetryOptions
+            var otlpOptions = Options.Create(new SeqOpenTelemetryOptions
             {
                 Endpoint = "http://example.com",
                 Key = "sample-key",

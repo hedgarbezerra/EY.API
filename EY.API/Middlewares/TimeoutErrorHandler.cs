@@ -31,15 +31,19 @@ namespace EY.API.Middlewares
 
             var extensions = new Dictionary<string, object>()
             {
-                ["Trace"] = httpContext.TraceIdentifier
+                ["Trace"] = httpContext.TraceIdentifier,
+                ["Endpoint"] = requestedUri,
             };
+
             var problems = Results.Problem(
                 statusCode: StatusCodes.Status408RequestTimeout,
                 detail: exception.Message,
                 title: "The request took too long to complete and was cancelled.",
                 extensions: extensions);
 
-            await problems.ExecuteAsync(httpContext);
+            httpContext.Response.StatusCode = StatusCodes.Status408RequestTimeout;
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync(_jsonHandler.Serialize(problems), cancellationToken);
 
             return true;
         }

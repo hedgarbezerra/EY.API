@@ -32,7 +32,9 @@ namespace EY.API.Middlewares
 
             var extensions = new Dictionary<string, object>()
             {
-                ["Trace"] = httpContext.TraceIdentifier
+                ["Trace"] = httpContext.TraceIdentifier,
+                ["Endpoint"] = requestedUri,
+
             };
             var problems = Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
@@ -40,8 +42,10 @@ namespace EY.API.Middlewares
                 title: "An error occurred while processing your request.",
                 extensions: extensions);
 
-            await problems.ExecuteAsync(httpContext);
+            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            httpContext.Response.ContentType = "application/json";
 
+            await httpContext.Response.WriteAsync(_jsonHandler.Serialize(problems), cancellationToken);
             return true;
         }
     }
