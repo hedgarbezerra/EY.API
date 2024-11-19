@@ -66,7 +66,6 @@ namespace EY.API
                 options.Theme = ScalarTheme.Purple;
             });
 
-            app.UseHttpsRedirection();
             app.UseExceptionHandler();
             app.UseAuthorization();
             app.UseAuthentication();
@@ -82,9 +81,11 @@ namespace EY.API
             {
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
-            app.MapPrometheusScrapingEndpoint();
+            app.UseOpenTelemetryPrometheusScrapingEndpoint();
             app.MapControllers();
             app.UseMiddleware<ActivityEnrichmentMiddleware>();
+
+
             using (var scope = app.Services.CreateScope())
             {
                 var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();

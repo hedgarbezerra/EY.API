@@ -24,6 +24,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens
 		prometheus-config.yml = prometheus-config.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "certs", "certs", "{32762A3A-465A-45EB-88A2-E066146E7C18}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\prometheus.crt = ..\..\..\prometheus.crt
+		..\..\..\prometheus.key = ..\..\..\prometheus.key
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

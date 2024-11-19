@@ -1,4 +1,15 @@
 ﻿services:
+
+  ey.api:
+    image: ${DOCKER_REGISTRY-}eyapi
+    container_name: webapi
+    build:
+      context: .
+      dockerfile: EY.API\Dockerfile
+    # environment:
+    #   - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+
+
   redis-cache:
     image: redis:latest
     container_name: redis
@@ -62,21 +73,25 @@
     image: prom/prometheus:latest
     container_name: prometheus
     command:
-      - --config.file=/etc/prometheus/prometheus-config.yml
+      - --config.file=/etc/prometheus/prometheus-config.yml      
     volumes:
       - ./prometheus-config.yml:/etc/prometheus/prometheus-config.yml:ro # arquivo de configuração
       - vol-prometheus:/prometheus
     ports:
       - 9090:9090
-
-  ey.api:
-    image: ${DOCKER_REGISTRY-}eyapi
-    container_name: webapi
-    build:
-      context: .
-      dockerfile: EY.API\Dockerfile
-    # environment:
-    #   - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+    - "3000:3000"
+    volumes:
+    - vol-grafana:/var/lib/grafana
+    environment:
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+    - prometheus-metrics
 
   keycloak: #Development tests only
     image: quay.io/keycloak/keycloak:latest
@@ -100,11 +115,12 @@
       - KC_HOSTNAME=localhost # Define o hostname do Keycloak
     depends_on:
       - sqlserver-db
-
+    
 volumes:
   vol-redis:
   vol-redis-insight:
   vol-seq:
   vol-sqlserver:
   vol-prometheus:
+  vol-grafana:
   
