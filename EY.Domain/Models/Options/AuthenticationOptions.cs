@@ -10,8 +10,8 @@ namespace EY.Domain.Models.Options
     {
         public const string SettingsKey = "Authentication";
 
-        public Auth0Options Auth0 { get; set; }
-        public KeycloakOptions Keycloak { get; set; }
+        public required Auth0Options Auth0 { get; set; }
+        public required KeycloakOptions Keycloak { get; set; }
 
     }
 

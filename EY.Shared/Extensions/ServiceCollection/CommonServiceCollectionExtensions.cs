@@ -1,22 +1,45 @@
 ﻿using EY.Domain.Models.Options;
 using EY.Shared.Attributes;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Timeout;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EY.Shared.Extensions.ServiceCollection
 {
     public static class CommonServiceCollectionExtensions
     {
+
+        public static IServiceCollection AddConfigurationOptions(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddOptions<RateLimitOptions>()
+                .Bind(configuration.GetSection(RateLimitOptions.SettingsKey))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            services.AddOptions<RetryPolicyOptions>()
+                .Bind(configuration.GetSection(RetryPolicyOptions.SettingsKey))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            services.AddOptions<OpenTelemetryOptions>()
+                .Bind(configuration.GetSection(OpenTelemetryOptions.SettingsKey))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            services.AddOptions<AuthenticationOptions>()
+                .Bind(configuration.GetSection(AuthenticationOptions.SettingsKey))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            services.AddOptions<RedisCacheOptions>()
+                .Bind(configuration.GetSection(RedisCacheOptions.SettingsKey))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            return services;
+        }
+
         /// <summary>
         /// Adds every class using <see cref="BindInterfaceAttribute"/> attribute to DI container 
         /// </summary>

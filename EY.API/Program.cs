@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using EY.Infrastructure.Contracts;
 using EY.Shared.Extensions.ServiceCollection;
+using System.Linq.Expressions;
 
 namespace EY.API
 {
@@ -19,12 +20,7 @@ namespace EY.API
 
             builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(AzureOptions.SettingsKey));
             builder.Services.AddAzureAppConfiguration(builder.Configuration);
-
-            builder.Services.Configure<RateLimitOptions>(builder.Configuration.GetSection(RateLimitOptions.SettingsKey));
-            builder.Services.Configure<RetryPolicyOptions>(builder.Configuration.GetSection(RetryPolicyOptions.SettingsKey));
-            builder.Services.Configure<OpenTelemetryOptions>(builder.Configuration.GetSection(OpenTelemetryOptions.SettingsKey));
-            builder.Services.Configure<AuthenticationOptions>(builder.Configuration.GetSection(AuthenticationOptions.SettingsKey));
-            builder.Services.Configure<RedisCacheOptions>(builder.Configuration.GetSection(RedisCacheOptions.SettingsKey));
+            builder.Services.AddConfigurationOptions(builder.Configuration);
 
             var logger = builder.Services.BuildServiceProvider()?.GetRequiredService<ILogger<Program>>();
 
@@ -86,11 +82,11 @@ namespace EY.API
             app.UseMiddleware<ActivityEnrichmentMiddleware>();
 
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();
-                migrator.Migrate();
-            }
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();
+            //    migrator.Migrate();
+            //}
 
             app.Run();
         }

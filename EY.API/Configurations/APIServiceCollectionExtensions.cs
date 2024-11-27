@@ -17,6 +17,7 @@ using EY.Infrastructure;
 using Microsoft.Extensions.Caching.Distributed;
 using EY.Shared.Extensions.ServiceCollection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Linq.Expressions;
 
 namespace EY.API.Configurations
 {

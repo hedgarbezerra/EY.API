@@ -15,7 +15,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Exceptions;
-using StackExchange.Redis;
 
 namespace EY.Shared.Extensions.ServiceCollection
 {
