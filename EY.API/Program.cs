@@ -40,7 +40,7 @@ namespace EY.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddExceptionHandler<TimeoutErrorHandler>();
+            builder.Services.AddExceptionHandler<TimeoutExceptionHandler>();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
 

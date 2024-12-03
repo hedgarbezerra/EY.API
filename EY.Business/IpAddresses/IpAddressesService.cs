@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace EY.Business.IpAddresses
 {
     [BindInterface(typeof(IIpAddressesService))]
-    public class IpAddressService : IIpAddressesService
+    public class IpAddressesService : IIpAddressesService
     {
         public const string CachePrefix = "IpAddresses_";
 
@@ -23,7 +23,7 @@ namespace EY.Business.IpAddresses
         private readonly IIp2CService _httpConsumer;
         private readonly ISqlExecutor _sqlExecutor;
 
-        public IpAddressService(IUnitOfWork unitOfWork, IRedisCache redisCache, IIp2CService httpConsumer, ISqlExecutor sqlExecutor)
+        public IpAddressesService(IUnitOfWork unitOfWork, IRedisCache redisCache, IIp2CService httpConsumer, ISqlExecutor sqlExecutor)
         {
             _unitOfWork = unitOfWork;
             _redisCache = redisCache;

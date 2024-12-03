@@ -1,10 +1,13 @@
 ﻿using EY.API;
 using EY.API.Configurations;
 using EY.Domain.Models.Options;
+using EY.Shared.Extensions.ServiceCollection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,13 +31,7 @@ namespace EY.Tests.API.Configurations
         public void AddSerilogLogging_ShouldAddSerilogToServices()
         {
             // Arrange
-            var otlpOptions = Options.Create(new SeqOpenTelemetryOptions
-            {
-                Endpoint = "http://example.com",
-                Key = "sample-key",
-                Source = "TestService"
-            });
-
+            var otlpOptions = GetOpenTelemetryOptions();
             var environment = Substitute.For<IWebHostEnvironment>();
             environment.EnvironmentName.Returns("Development");
 
@@ -53,13 +50,7 @@ namespace EY.Tests.API.Configurations
         public void AddOtlpLogging_ShouldAddOpenTelemetryToServices()
         {
             // Arrange
-            var otlpOptions = Options.Create(new SeqOpenTelemetryOptions
-            {
-                Endpoint = "http://example.com",
-                Key = "sample-key",
-                Source = "TestService"
-            });
-
+            var otlpOptions = GetOpenTelemetryOptions();
             var environment = Substitute.For<IWebHostEnvironment>();
             environment.EnvironmentName.Returns("Development");
 
@@ -67,14 +58,13 @@ namespace EY.Tests.API.Configurations
             _services.AddSingleton(environment);
 
             // Act
-            _services.AddOtlpLogging();
+            _services.AddDistributedOpenTelemetry();
 
             // Assert
-            var provider = _services.BuildServiceProvider();
-
-            var openTelemetryLogger = provider.GetService<ILogger<Program>>();
-            openTelemetryLogger.Should().NotBeNull();
-            _services.Should().ContainSingle(descriptor => descriptor.ServiceType == typeof(ILoggerProvider));
+            _services.Should().Contain(descriptor => descriptor.ServiceType == typeof(ILoggerFactory));
+            _services.Should().Contain(descriptor => descriptor.ServiceType == typeof(Serilog.IDiagnosticContext));    
+            _services.Should().Contain(descriptor => descriptor.ServiceType == typeof(MeterProvider));
+            _services.Should().Contain(descriptor => descriptor.ServiceType == typeof(TracerProvider));
         }
 
         [Test]
@@ -87,11 +77,22 @@ namespace EY.Tests.API.Configurations
             _services.AddSingleton(environment);
 
             // Act
-            Action act = () => _services.AddOtlpLogging();
+            Action act = () => _services.AddDistributedOpenTelemetry();
 
             // Assert
             act.Should().Throw<InvalidOperationException>();
         }
+
+        private static IOptions<OpenTelemetryOptions> GetOpenTelemetryOptions() => Options.Create(new OpenTelemetryOptions
+        {
+            Source = "EY",
+            Jaeger = new JaegerOpenTelemetryOptions { Endpoint = "" },
+            Seq = new SeqOpenTelemetryOptions
+            {
+                Endpoint = "http://example.com",
+                Key = "sample-key"
+            }
+        });
     }
 
 }

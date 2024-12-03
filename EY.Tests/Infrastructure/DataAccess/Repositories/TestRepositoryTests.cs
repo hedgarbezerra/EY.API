@@ -13,7 +13,7 @@ namespace EY.Tests.Infrastructure.DataAccess.Repositories
     [TestFixture]
     public class BaseRepositoryTests
     {
-        private BaseRepository<Country> _repository;
+        private CountriesRepository _repository;
         private AppDbContext _dbContext;
 
         [SetUp]
@@ -24,7 +24,7 @@ namespace EY.Tests.Infrastructure.DataAccess.Repositories
                 .Options;
 
             _dbContext = new AppDbContext(options);
-            _repository = new BaseRepository<Country>(_dbContext);
+            _repository = new CountriesRepository(_dbContext);
         }
 
         [TearDown]

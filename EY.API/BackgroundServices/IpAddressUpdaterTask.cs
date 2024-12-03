@@ -112,7 +112,7 @@ namespace EY.API.BackgroundServices
 
         private Task UpdateCache(IRedisCache cache, List<string> ipAddresses)
         {
-            var updateCacheTasks = ipAddresses.Select(ip => cache.RemoveAsync($"{IpAddressService.CachePrefix}{ip}"));
+            var updateCacheTasks = ipAddresses.Select(ip => cache.RemoveAsync($"{IpAddressesService.CachePrefix}{ip}"));
 
             return Task.WhenAll(updateCacheTasks);
         }

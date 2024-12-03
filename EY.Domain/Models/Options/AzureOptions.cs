@@ -11,10 +11,10 @@ namespace EY.Domain.Models.Options
     {
         public const string SettingsKey = "Azure";
 
-        public required AppConfigurations AppConfigurations { get; init; }
+        public required AppConfigurationsOptions AppConfigurations { get; init; }
     }
 
-    public class AppConfigurations
+    public class AppConfigurationsOptions
     {
         /// <summary>
         /// Connection string for the App Configurations on Azure

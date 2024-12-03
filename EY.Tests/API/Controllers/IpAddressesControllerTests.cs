@@ -127,7 +127,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = new IpAddressInput("192.168.0.1", "Brazil", "BR", "BRA");
-            var result = Result<IpAddress>.Failure("Add failed");
+            var result = Result.Failure("Add failed");
 
             _ipAddressesService.Add(ipAddress).Returns(result);
 
@@ -183,7 +183,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = "192.168.0.1";
-            var result = Result<IpAddress>.Success(null);
+            var result = Result.Success();
 
             _ipAddressesService.Delete(ipAddress).Returns(result);
 
@@ -201,7 +201,7 @@ namespace EY.Tests.API.Controllers
         {
             // Arrange
             var ipAddress = "192.168.0.1";
-            var result = Result<IpAddress>.Failure("Delete failed");
+            var result = Result.Failure("Delete failed");
 
             _ipAddressesService.Delete(ipAddress).Returns(result);
 

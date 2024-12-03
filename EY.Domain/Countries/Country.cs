@@ -7,6 +7,7 @@ using EY.Domain.IpAddresses;
 
 namespace EY.Domain.Countries
 {
+    //TODO: refatorar para termos um maior nível de abstração e também ter um domínio mais bem definido que não depende de primitivos.
     public class Country
     {
         public int Id { get; set; }

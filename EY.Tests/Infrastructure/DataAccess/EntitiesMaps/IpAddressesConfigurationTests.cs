@@ -12,7 +12,7 @@ namespace EY.Tests.Infrastructure.DataAccess.EntitiesMaps
         {
             //Arrange
             List<string> ipAddressProperties = [nameof(IpAddress.Id), nameof(IpAddress.Ip), nameof(IpAddress.Country), nameof(IpAddress.CountryId), nameof(IpAddress.CreatedAt)];
-            var sut = new IpAddressEntityConfiguration();
+            var sut = new IpAddressEntityTypeConfiguration();
             var builder = EntityConfiguratationsHelper.GetEntityBuilder<IpAddress>();
 
             //Act

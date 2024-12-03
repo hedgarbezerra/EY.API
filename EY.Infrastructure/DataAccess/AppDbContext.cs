@@ -32,8 +32,8 @@ namespace EY.Infrastructure.DataAccess
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new CountryEntityConfiguration());
-            modelBuilder.ApplyConfiguration(new IpAddressEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new CountryEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new IpAddressEntityTypeConfiguration());
         }
         public static string Soundex(string input)
         {

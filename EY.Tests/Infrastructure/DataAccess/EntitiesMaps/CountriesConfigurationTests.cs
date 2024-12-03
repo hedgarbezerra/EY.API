@@ -17,7 +17,7 @@ namespace EY.Tests.Infrastructure.DataAccess.EntitiesMaps
                 nameof(Country.TwoLetterCode),
                 nameof(Country.ThreeLetterCode),
                 nameof(Country.CreatedAt)];
-            var sut = new CountryEntityConfiguration();
+            var sut = new CountryEntityTypeConfiguration();
             var builder = EntityConfiguratationsHelper.GetEntityBuilder<Country>();
 
             //Act

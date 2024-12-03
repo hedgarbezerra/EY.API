@@ -7,7 +7,7 @@ namespace EY.Infrastructure.DataAccess.EntitiesMaps
     /// <summary>
     /// Maps <see cref="Country"/> to database table using Entity Framework
     /// </summary>
-    public class CountryEntityConfiguration : IEntityTypeConfiguration<Country>
+    public class CountryEntityTypeConfiguration : IEntityTypeConfiguration<Country>
     {
         public void Configure(EntityTypeBuilder<Country> builder)
         {

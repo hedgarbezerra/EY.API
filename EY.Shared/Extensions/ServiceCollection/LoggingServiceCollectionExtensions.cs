@@ -108,7 +108,6 @@ namespace EY.Shared.Extensions.ServiceCollection
         public static IServiceCollection AddDistributedOpenTelemetry(this IServiceCollection services)
         {
             var otlpOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<OpenTelemetryOptions>>().Value;
-            var redisOptions = services.BuildServiceProvider()?.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
             var environment = services.BuildServiceProvider()?.GetRequiredService<IWebHostEnvironment>();
 
             services.AddSerilogLogging();

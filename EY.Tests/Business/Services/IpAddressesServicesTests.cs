@@ -14,7 +14,7 @@ namespace EY.Tests.Business.Services
     [TestFixture]
     public class IpAddressServiceTests
     {
-        private IpAddressService _service;
+        private IpAddressesService _service;
         private IUnitOfWork _unitOfWork;
         private IRedisCache _redisCache;
         private IIp2CService _httpConsumer;
@@ -28,7 +28,7 @@ namespace EY.Tests.Business.Services
             _httpConsumer = Substitute.For<IIp2CService>();
             _sqlExecutor = Substitute.For<ISqlExecutor>();
 
-            _service = new IpAddressService(_unitOfWork, _redisCache, _httpConsumer, _sqlExecutor);
+            _service = new IpAddressesService(_unitOfWork, _redisCache, _httpConsumer, _sqlExecutor);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace EY.Tests.Business.Services
                     ThreeLetterCode = "CNC"
                 }
             };
-            _redisCache.GetAsync<IpAddress>($"{IpAddressService.CachePrefix}{ipAddress}", CancellationToken.None)
+            _redisCache.GetAsync<IpAddress>($"{IpAddressesService.CachePrefix}{ipAddress}", CancellationToken.None)
                 .Returns(Task.FromResult(cachedIp));
 
             // Act
@@ -171,7 +171,7 @@ namespace EY.Tests.Business.Services
             ipRepository.Get().Returns(new List<IpAddress> { dbIp }.AsQueryable());
 
             // Mock the cache to return null
-            _redisCache.GetAsync<IpAddress>($"{IpAddressService.CachePrefix}{ipAddress}", CancellationToken.None)
+            _redisCache.GetAsync<IpAddress>($"{IpAddressesService.CachePrefix}{ipAddress}", CancellationToken.None)
                 .Returns(Task.FromResult<IpAddress>(null));
 
             // Act
@@ -184,7 +184,7 @@ namespace EY.Tests.Business.Services
             result.Data.IpAddress.Should().Be(ipAddress);
             result.Data.CountryName.Should().Be(dbIp.Country.Name);
             await _redisCache.Received(1).GetAsync<IpAddress>(Arg.Any<string>(), Arg.Any<CancellationToken>());
-            await _redisCache.Received(1).AddAsync($"{IpAddressService.CachePrefix}{ipAddress}", dbIp, CancellationToken.None);
+            await _redisCache.Received(1).AddAsync($"{IpAddressesService.CachePrefix}{ipAddress}", dbIp, CancellationToken.None);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace EY.Tests.Business.Services
         {
             // Arrange
             var ipAddress = "192.168.1.1";
-            _redisCache.GetAsync<IpAddress>($"{IpAddressService.CachePrefix}{ipAddress}", CancellationToken.None)
+            _redisCache.GetAsync<IpAddress>($"{IpAddressesService.CachePrefix}{ipAddress}", CancellationToken.None)
                 .Returns(Task.FromResult<IpAddress>(null));
 
             var ipRepository = Substitute.For<IRepository<IpAddress>>();

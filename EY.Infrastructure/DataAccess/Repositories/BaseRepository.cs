@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace EY.Infrastructure.DataAccess.Repositories
 {
-    public class BaseRepository<T> : IRepositoryBulk<T>, IRepository<T> where T : class
+    public abstract class BaseRepository<T> : IRepositoryBulk<T>, IRepository<T> where T : class
     {
         private readonly AppDbContext _dbContext;
 

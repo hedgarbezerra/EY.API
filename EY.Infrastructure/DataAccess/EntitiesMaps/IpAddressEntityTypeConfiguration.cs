@@ -7,7 +7,7 @@ namespace EY.Infrastructure.DataAccess.EntitiesMaps
     /// <summary>
     /// Maps <see cref="IpAddress"/> to database table using Entity Framework
     /// </summary>
-    public class IpAddressEntityConfiguration : IEntityTypeConfiguration<IpAddress>
+    public class IpAddressEntityTypeConfiguration : IEntityTypeConfiguration<IpAddress>
     {
         public void Configure(EntityTypeBuilder<IpAddress> builder)
         {

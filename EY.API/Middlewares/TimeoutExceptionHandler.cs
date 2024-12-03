@@ -8,13 +8,13 @@ using Newtonsoft.Json;
 
 namespace EY.API.Middlewares
 {
-    public class TimeoutErrorHandler : IExceptionHandler
+    public class TimeoutExceptionHandler : IExceptionHandler
     {
-        private readonly ILogger<TimeoutErrorHandler> _logger;
+        private readonly ILogger<TimeoutExceptionHandler> _logger;
         private readonly IJsonHandler _jsonHandler;
         private readonly IUrlHelper _urlHelper;
 
-        public TimeoutErrorHandler(ILogger<TimeoutErrorHandler> logger, IJsonHandler jsonHandler, IUrlHelper urlHelper)
+        public TimeoutExceptionHandler(ILogger<TimeoutExceptionHandler> logger, IJsonHandler jsonHandler, IUrlHelper urlHelper)
         {
             _logger = logger;
             _jsonHandler = jsonHandler;

@@ -20,8 +20,5 @@ namespace EY.Domain.Countries
 
         public static Result Updated(string countryName) => Result.Success($"Country '{countryName}' updated successfully.");
         public static Result Deleted(string countryName) => Result.Success($"Country '{countryName}' deleted successfully.");
-
-
-
     }
 }
