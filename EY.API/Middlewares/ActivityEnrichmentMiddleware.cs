@@ -1,5 +1,6 @@
 ﻿using EY.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using System.Diagnostics;
 
 namespace EY.API.Middlewares
@@ -15,6 +16,7 @@ namespace EY.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context,  IUrlHelper urlHelper)
         {
+            var act = context.Features.Get<IHttpActivityFeature>();
             // Verifica se há uma atividade atual
             var activity = Activity.Current;
             if (activity != null)
