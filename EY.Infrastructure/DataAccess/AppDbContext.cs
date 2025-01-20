@@ -26,19 +26,10 @@ namespace EY.Infrastructure.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-            .HasDbFunction(typeof(AppDbContext).GetMethod(nameof(Soundex)))
-            .HasTranslation(args => new SqlFunctionExpression("SOUNDEX", args, true,[false], typeof(string), null));
-
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new CountryEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new IpAddressEntityTypeConfiguration());
-        }
-        public static string Soundex(string input)
-        {
-            // This method is a placeholder for the SQL function
-            throw new NotSupportedException();
         }
     }
 }

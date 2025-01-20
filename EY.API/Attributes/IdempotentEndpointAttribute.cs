@@ -9,7 +9,7 @@ namespace EY.API.Attributes
     [AttributeUsage(AttributeTargets.Method)]
     internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilter
     {
-        private const int DefaultCacheTimeInMinutes = 30;
+        private const int DefaultCacheTimeInMinutes = 10;
         private const string HttpRequestIdempotencyHeaderName = "Idempotence-Key";
         private const string CacheIdempotencyPrefix = "Idempotent_";
 
@@ -25,9 +25,7 @@ namespace EY.API.Attributes
             ActionExecutionDelegate next)
         {
             // Parse the Idempotence-Key header from the request
-            if (!context.HttpContext.Request.Headers.TryGetValue(
-                    HttpRequestIdempotencyHeaderName,
-                    out StringValues idempotenceKeyValue) ||
+            if (!context.HttpContext.Request.Headers.TryGetValue(HttpRequestIdempotencyHeaderName, out StringValues idempotenceKeyValue) ||
                 !Guid.TryParse(idempotenceKeyValue, out Guid idempotenceKey))
             {
                 context.Result = new BadRequestObjectResult("Invalid or missing Idempotence-Key header");

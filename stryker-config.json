@@ -1,0 +1,57 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "EY",
+      "module": "EY API",
+      "version": "1"
+    },
+    "concurrency": 4,
+    "mutation-level": "Standard",
+    "language-version": "latest",
+    "additional-timeout": 5000,
+    "mutate": [
+      "**/*"
+    ],
+    "solution": null,
+    "configuration": null,
+    "target-framework": null,
+    "project": null,
+    "coverage-analysis": "perTest",
+    "disable-bail": false,
+    "disable-mix-mutants": false,
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 40
+    },
+    "verbosity": "debug",
+    "reporters": [
+      "progress",
+      "markdown",
+      "json"
+    ],
+    "since": {
+      "enabled": false,
+      "ignore-changes-in": [],
+      "target": "master"
+    },
+    "baseline": {
+      "enabled": false,
+      "provider": "disk",
+      "azure-fileshare-url": "",
+      "fallback-version": "master"
+    },
+    "dashboard-url": "https://dashboard.stryker-mutator.io",
+    "test-projects": [
+      "EY.Tests.csproj"
+    ],
+    "test-case-filter": "",
+    "ignore-mutations": [],
+    "ignore-methods": [
+      "*Log", // Ignores all methods ending with Log
+      "*Console" // Ignores all methods starting with class Console
+    ],
+    "report-file-name": "mutation-report",
+    "break-on-initial-test-failure": false
+  }
+}
