@@ -17,6 +17,11 @@ namespace EY.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Host.UseDefaultServiceProvider((context, options) =>
+            {
+                options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+                options.ValidateOnBuild = true;
+            });
 
             builder.Services.Configure<AzureOptions>(builder.Configuration.GetSection(AzureOptions.SettingsKey));
             builder.Services.AddAzureAppConfiguration(builder.Configuration);
