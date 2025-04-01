@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 
-namespace EY.Shared.Extensions
+namespace EY.Shared.Extensions;
+
+public static class StringExtensions
 {
-    public static class StringExtensions
+    public static bool IsValidIpAddress(this string ipAddress)
     {
-        public static bool IsValidIpAddress(this string ipAddress) =>  System.Net.IPAddress.TryParse(ipAddress, out _);
+        return IPAddress.TryParse(ipAddress, out _);
     }
 }

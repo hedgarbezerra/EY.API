@@ -1,23 +1,16 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using EY.Domain.IpAddresses;
 
-namespace EY.Domain.Countries
+namespace EY.Domain.Countries;
+
+//TODO: refatorar para termos um maior nï¿½vel de abstraï¿½ï¿½o e tambï¿½m ter um domï¿½nio mais bem definido que nï¿½o depende de primitivos.
+public class Country
 {
-    //TODO: refatorar para termos um maior nível de abstração e também ter um domínio mais bem definido que não depende de primitivos.
-    public class Country
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public required string TwoLetterCode { get; set; }
-        public required string ThreeLetterCode { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string TwoLetterCode { get; set; }
+    public required string ThreeLetterCode { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [JsonIgnore]
-        public virtual ICollection<IpAddress> IpAddresses { get; set; } = new List<IpAddress>();
-    }
-
+    [JsonIgnore] public virtual ICollection<IpAddress> IpAddresses { get; set; } = new List<IpAddress>();
 }

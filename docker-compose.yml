@@ -3,6 +3,15 @@
   ey.api:
     image: ${DOCKER_REGISTRY-}eyapi
     container_name: webapi
+    ports:
+      - "5100:8080"
+      - "5101:8081"
+    depends_on:
+      - redis-cache
+      - sqlserver-db
+      - seq-logging
+      - jaeger-tracing
+      - prometheus-metrics
     build:
       context: .
       dockerfile: EY.API\Dockerfile
@@ -64,6 +73,9 @@
   jaeger-tracing:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
+      - PROMETHEUS_SERVER_URL=http://prometheus:9090
     ports:
       - 4317:4317
       - 4318:4318
@@ -73,7 +85,7 @@
     image: prom/prometheus:latest
     container_name: prometheus
     command:
-      - --config.file=/etc/prometheus/prometheus-config.yml      
+      - --config.file=/etc/prometheus/prometheus-config.yml
     volumes:
       - ./prometheus-config.yml:/etc/prometheus/prometheus-config.yml:ro # arquivo de configuração
       - vol-prometheus:/prometheus
@@ -84,14 +96,15 @@
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-    - "3000:3000"
+      - "3000:3000"
     volumes:
-    - vol-grafana:/var/lib/grafana
+      - vol-grafana:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
     environment:
-    - GF_SECURITY_ADMIN_USER=admin
-    - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
-    - prometheus-metrics
+      - prometheus-metrics
 
   keycloak: #Development tests only
     image: quay.io/keycloak/keycloak:latest
@@ -106,8 +119,8 @@
       - KC_HEALTH_ENABLED=true
       - KC_METRICS_ENABLED=true
       - KC_TRACING_ENABLED=true
-      - KC_TRACING_ENDPOINT=http://jaeger:4317     
-      - KC_HTTP_ENABLED=true 
+      - KC_TRACING_ENDPOINT=http://jaeger:4317
+      - KC_HTTP_ENABLED=true
       - KC_DB=mssql
       - KC_DB_URL=jdbc:sqlserver://sqlserver:1433;databaseName=keycloak;encrypt=false;trustServerCertificate=true
       - KC_DB_USERNAME=sa
@@ -115,7 +128,7 @@
       - KC_HOSTNAME=localhost # Define o hostname do Keycloak
     depends_on:
       - sqlserver-db
-    
+
 volumes:
   vol-redis:
   vol-redis-insight:

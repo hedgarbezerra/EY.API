@@ -1,0 +1,29 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true
+
+  - name: SQLServer
+    type: mssql
+    access: proxy
+    url: sqlserver:1433
+    database: master
+    user: sa
+    secureJsonData:
+      password: Strong_password_123!
+    jsonData:
+      maxOpenConns: 10
+      maxIdleConns: 100
+      connMaxLifetime: 14400
+      encrypt: false
+      sslmode: "disable"

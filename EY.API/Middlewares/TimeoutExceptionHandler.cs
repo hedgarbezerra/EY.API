@@ -1,51 +1,49 @@
 ﻿using EY.Domain.Contracts;
-using EY.Domain.Models;
 using EY.Shared.Contracts;
 using EY.Shared.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http.Extensions;
-using Newtonsoft.Json;
 
-namespace EY.API.Middlewares
+namespace EY.API.Middlewares;
+
+public class TimeoutExceptionHandler : IExceptionHandler
 {
-    public class TimeoutExceptionHandler : IExceptionHandler
+    private readonly IJsonHandler _jsonHandler;
+    private readonly ILogger<TimeoutExceptionHandler> _logger;
+    private readonly IUrlHelper _urlHelper;
+
+    public TimeoutExceptionHandler(ILogger<TimeoutExceptionHandler> logger, IJsonHandler jsonHandler,
+        IUrlHelper urlHelper)
     {
-        private readonly ILogger<TimeoutExceptionHandler> _logger;
-        private readonly IJsonHandler _jsonHandler;
-        private readonly IUrlHelper _urlHelper;
+        _logger = logger;
+        _jsonHandler = jsonHandler;
+        _urlHelper = urlHelper;
+    }
 
-        public TimeoutExceptionHandler(ILogger<TimeoutExceptionHandler> logger, IJsonHandler jsonHandler, IUrlHelper urlHelper)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+        CancellationToken cancellationToken)
+    {
+        if (exception is null || !exception.IsAbortedRequestException())
+            return false;
+
+        var requestedUri = _urlHelper.GetDisplayUrl(httpContext.Request);
+        _logger.LogError(exception, "Requested Url '{RequestedUrl}' has timed out.", requestedUri);
+
+        var extensions = new Dictionary<string, object>
         {
-            _logger = logger;
-            _jsonHandler = jsonHandler;
-            _urlHelper = urlHelper;
-        }
+            ["Trace"] = httpContext.TraceIdentifier,
+            ["Endpoint"] = requestedUri
+        };
 
-        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
-        {
-            if (exception is null || !exception.IsAbortedRequestException())
-                return false;
+        var problems = Results.Problem(
+            statusCode: StatusCodes.Status408RequestTimeout,
+            detail: exception.Message,
+            title: "The request took too long to complete and was cancelled.",
+            extensions: extensions);
 
-            string requestedUri = _urlHelper.GetDisplayUrl(httpContext.Request);
-            _logger.LogError(exception, "Requested Url '{RequestedUrl}' has timed out.", requestedUri);
+        httpContext.Response.StatusCode = StatusCodes.Status408RequestTimeout;
+        httpContext.Response.ContentType = "application/json";
+        await httpContext.Response.WriteAsync(_jsonHandler.Serialize(problems), cancellationToken);
 
-            var extensions = new Dictionary<string, object>()
-            {
-                ["Trace"] = httpContext.TraceIdentifier,
-                ["Endpoint"] = requestedUri,
-            };
-
-            var problems = Results.Problem(
-                statusCode: StatusCodes.Status408RequestTimeout,
-                detail: exception.Message,
-                title: "The request took too long to complete and was cancelled.",
-                extensions: extensions);
-
-            httpContext.Response.StatusCode = StatusCodes.Status408RequestTimeout;
-            httpContext.Response.ContentType = "application/json";
-            await httpContext.Response.WriteAsync(_jsonHandler.Serialize(problems), cancellationToken);
-
-            return true;
-        }
+        return true;
     }
 }

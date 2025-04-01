@@ -22,6 +22,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{2AD82693-74BA-49A7-9D0D-E38EEFE90F31}"
 	ProjectSection(SolutionItems) = preProject
 		prometheus-config.yml = prometheus-config.yml
+		stryker-config.json = stryker-config.json
+		grafana-datasources.yml = grafana-datasources.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "certs", "certs", "{32762A3A-465A-45EB-88A2-E066146E7C18}"

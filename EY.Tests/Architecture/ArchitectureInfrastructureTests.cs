@@ -1,76 +1,69 @@
-﻿using EY.Domain.Contracts;
-using EY.Infrastructure.DataAccess.Repositories;
+﻿using EY.Infrastructure.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EY.Tests.Architecture
+namespace EY.Tests.Architecture;
+
+[TestFixture]
+public class ArchitectureInfrastructureTests : ArchitectureBaseTests
 {
-    [TestFixture]
-    public class ArchitectureInfrastructureTests : ArchitectureBaseTests
+    [Test]
+    public void InfrastructureLayer_ShouldNotHaveDependenciesOrReferences()
     {
-        [Test]
-        public void InfrastructureLayer_ShouldNotHaveDependenciesOrReferences()
-        {
-            var result = Types.InAssembly(InfrastructureAssembly)
-                .Should()
-                .NotHaveDependencyOnAll(Assemblies.Names().ToArray())
-                .GetResult();
+        var result = Types.InAssembly(InfrastructureAssembly)
+            .Should()
+            .NotHaveDependencyOnAll(Assemblies.Names().ToArray())
+            .GetResult();
 
-            result.IsSuccessful.Should().BeTrue();
-        }
+        result.IsSuccessful.Should().BeTrue();
+    }
 
-        [Test]
-        public void InfrastructureLayer_Interfaces_ShouldStartWithCaptalI()
-        {
-            var result = Types.InAssembly(InfrastructureAssembly)
-                .That()
-                .AreInterfaces()
-                .Should()
-                .HaveNameStartingWith("I")
-                .GetResult();
+    [Test]
+    public void InfrastructureLayer_Interfaces_ShouldStartWithCaptalI()
+    {
+        var result = Types.InAssembly(InfrastructureAssembly)
+            .That()
+            .AreInterfaces()
+            .Should()
+            .HaveNameStartingWith("I")
+            .GetResult();
 
-            result.IsSuccessful.Should().BeTrue();
-        }
+        result.IsSuccessful.Should().BeTrue();
+    }
 
 
-        [Test]
-        public void InfrastructureLayer_RepositoryImplementations_NameShouldEndWithRepository()
-        {
-            var classesPredicate = Types.InAssembly(InfrastructureAssembly)
+    [Test]
+    public void InfrastructureLayer_RepositoryImplementations_NameShouldEndWithRepository()
+    {
+        var classesPredicate = Types.InAssembly(InfrastructureAssembly)
             .That()
             .AreClasses()
             .And()
             .Inherit(typeof(BaseRepository<>));
 
-            var result = classesPredicate.Should()
-                .NotBeGeneric()
-                .And()
-                .HaveNameEndingWith("Repository")
-                .GetResult();
+        var result = classesPredicate.Should()
+            .NotBeGeneric()
+            .And()
+            .HaveNameEndingWith("Repository")
+            .GetResult();
 
-            result.IsSuccessful.Should().BeTrue();
-        }
+        result.IsSuccessful.Should().BeTrue();
+    }
 
-        [Test]
-        public void InfrastructureLayer_EntityConfigurations_NameShouldEndWithEntityConfiguration()
-        {
-            var classesPredicate = Types.InAssembly(InfrastructureAssembly)
+    [Test]
+    public void InfrastructureLayer_EntityConfigurations_NameShouldEndWithEntityConfiguration()
+    {
+        var classesPredicate = Types.InAssembly(InfrastructureAssembly)
             .That()
             .AreClasses()
             .And()
             .ImplementInterface(typeof(IEntityTypeConfiguration<>));
 
-            var result = classesPredicate.Should()
-                .NotBeGeneric()
-                .And()
-                .HaveNameEndingWith("EntityTypeConfiguration")
-                .GetResult();
+        var result = classesPredicate.Should()
+            .NotBeGeneric()
+            .And()
+            .HaveNameEndingWith("EntityTypeConfiguration")
+            .GetResult();
 
-            result.IsSuccessful.Should().BeTrue();
-        }
+        result.IsSuccessful.Should().BeTrue();
     }
 }
