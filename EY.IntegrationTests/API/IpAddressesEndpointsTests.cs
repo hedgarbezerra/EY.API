@@ -9,47 +9,22 @@ using Newtonsoft.Json;
 namespace EY.IntegrationTests.API;
 
 [TestFixture]
-public class IpAddressesEndpointsTests
+public class IpAddressesEndpointsTests : IntegrationTestBase
 {
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
-        _factory = new IntegrationsWebAppFactory();
-        await _factory.StartContainersAsync();
-
-        _client = _factory.CreateClient();
-
-        using var scope = _factory.Services.CreateScope();
-        _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        _dbContext.Database.EnsureCreated();
-
-        await AddIpAddresses(_dbContext);
+        await AddIpAddresses(DbContext);
     }
-
-    [OneTimeTearDown]
-    public async Task OneTimeTearDown()
-    {
-        await _factory.StopContainersAsync();
-        await _factory.DisposeAsync();
-        _dbContext.Database.EnsureDeleted();
-        _dbContext.Dispose();
-        _client.Dispose();
-    }
-
-    private IntegrationsWebAppFactory _factory;
-    private HttpClient _client;
-    private AppDbContext _dbContext;
-
 
     [Test]
     public async Task GetIp_DoesNotExistInDatabase_FetchFromIp2C()
     {
         //Arrange
-        using var scope = _factory.Services.CreateScope();
         var expectedIp = "1";
 
         //Act
-        var response = await _client.GetAsync($"/api/ipaddresses/{expectedIp}");
+        var response = await Client.GetAsync($"/api/ipaddresses/{expectedIp}");
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadAsStringAsync();
@@ -62,12 +37,12 @@ public class IpAddressesEndpointsTests
     public async Task GetIp_FoundInDatabase_ReturnRecordAndAddToCache()
     {
         //Arrange
-        using var scope = _factory.Services.CreateScope();
+        using var scope = Factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var expectedIp = dbContext.IpAddresses.First();
 
         //Act
-        var response = await _client.GetAsync($"/api/ipaddresses/{expectedIp.Ip}");
+        var response = await Client.GetAsync($"/api/ipaddresses/{expectedIp.Ip}");
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadAsStringAsync();

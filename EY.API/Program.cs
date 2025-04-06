@@ -2,6 +2,7 @@ using EY.API.BackgroundServices;
 using EY.API.Configurations;
 using EY.API.Middlewares;
 using EY.Domain.Models.Options;
+using EY.Infrastructure.Contracts;
 using EY.Shared.Contracts;
 using EY.Shared.Extensions.ServiceCollection;
 using HealthChecks.UI.Client;
@@ -35,16 +36,15 @@ public class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddDistributedOpenTelemetry();
         builder.Services.AddAPIMappedServices();
-        builder.Services.AddAPIVersioning(builder.Configuration);
         builder.Services.AddAPIAuthentication();
         builder.Services.AddRedisDistributedCache();
         builder.Services.AddAPIResiliencePipeline(logger);
         builder.Services.AddAPIRateLimiter();
         builder.Services.AddEntityFramework(builder.Configuration);
         builder.Services.AddAPIHealthChecks(builder.Configuration);
-        builder.Services.AddControllers().AddNewtonsoftJson();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddControllers()
+            .AddNewtonsoftJson();
+        builder.Services.AddAPIVersioning(builder.Configuration);
 
         builder.Services.AddExceptionHandler<TimeoutExceptionHandler>();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -68,9 +68,16 @@ public class Program
         builder.Services.AddHostedService<IpAddressUpdaterTask>();
         var app = builder.Build();
 
-        if (builder.Environment.IsProduction()) app.UseAzureAppConfiguration();
+        if (builder.Environment.IsProduction())
+            app.UseAzureAppConfiguration();
 
         app.UseSwagger(options => { options.RouteTemplate = "openapi/{documentName}.json"; });
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/openapi/v1.json", "EY API V1");
+            options.RoutePrefix = "swagger";
+        });
+
         app.MapScalarApiReference(options =>
         {
             options.ForceThemeMode = ThemeMode.Dark;
@@ -86,6 +93,7 @@ public class Program
                 .AllowAnyMethod()
                 .AllowAnyOrigin();
         });
+
         app.UseRateLimiter();
         app.UseOutputCache();
         app.UseHealthChecks("/_health", new HealthCheckOptions
@@ -94,15 +102,15 @@ public class Program
         });
         app.UseSerilogRequestLogging();
         app.UseOpenTelemetryPrometheusScrapingEndpoint("/_metrics");
-        app.MapControllers();
         app.UseMiddleware<ActivityEnrichmentMiddleware>();
 
+        app.MapControllers();
 
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();
-        //    migrator.Migrate();
-        //}
+        using (var scope = app.Services.CreateScope())
+        {
+            var migrator = scope.ServiceProvider.GetRequiredService<IMigrationsExecuter>();
+            migrator.Migrate();
+        }
 
         app.Run();
     }

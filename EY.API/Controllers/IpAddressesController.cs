@@ -57,9 +57,13 @@ public class IpAddressesController : ControllerBase
     }
 
     #region Not part of the project, some additional
-    
+
     [HttpGet("error")]
-    public IActionResult ThrowsException() => throw new Exception("This is a test exception");
+    public IActionResult ThrowsException()
+    {
+        throw new Exception("This is a test exception");
+    }
+
     /// <summary>
     ///     Retrieves a paginated list of IpAddress entities.
     /// </summary>

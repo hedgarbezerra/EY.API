@@ -46,10 +46,10 @@ public static class LoggingServiceCollectionExtensions
                     ["service.name"] = otlpOptions.Source
                 };
             })
-            .Filter.ByExcluding(evt => 
-                evt.Properties.ContainsKey("RequestPath") && 
+            .Filter.ByExcluding(evt =>
+                evt.Properties.ContainsKey("RequestPath") &&
                 (evt.Properties["RequestPath"].ToString().Contains("metrics") ||
-                evt.Properties["RequestPath"].ToString().Contains("health")))
+                 evt.Properties["RequestPath"].ToString().Contains("health")))
             .CreateLogger();
 
         services.AddSerilog();
@@ -117,11 +117,11 @@ public static class LoggingServiceCollectionExtensions
                     ["Environment"] = environment.EnvironmentName
                 });
             })
-            .WithTracing(tracing => tracing 
+            .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation(options =>
                 {
-                    options.Filter = context => 
-                        !context.Request.Path.StartsWithSegments("/_health") && 
+                    options.Filter = context =>
+                        !context.Request.Path.StartsWithSegments("/_health") &&
                         !context.Request.Path.StartsWithSegments("/_metrics");
                 })
                 .AddHttpClientInstrumentation()
@@ -133,14 +133,12 @@ public static class LoggingServiceCollectionExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
-                .AddPrometheusExporter(opt =>
-                {
-                    opt.ScrapeEndpointPath = "/_metrics";
-                })
+                .AddPrometheusExporter(opt => { opt.ScrapeEndpointPath = "/_metrics"; })
                 .AddView("http.server.request.duration",
                     new ExplicitBucketHistogramConfiguration
                     {
-                        Boundaries = new[] { 0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
+                        Boundaries = new[]
+                            { 0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
                     })
             );
         //.WithLogging(logging => logging

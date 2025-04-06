@@ -2,7 +2,6 @@
 using EY.Shared.Attributes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace EY.Infrastructure.DataAccess;
@@ -26,17 +25,13 @@ public class MigrationsExecuter : IMigrationsExecuter
     {
         try
         {
-            if (_hostEnvironment.IsProduction())
-            {
-                var pendingMigrations = _context.Database.GetPendingMigrations().ToList();
+            _logger.LogInformation("Migrating database...");
+            var pendingMigrations = _context.Database.GetPendingMigrations().ToList();
 
-                if (pendingMigrations is { Count: > 0 })
-                    _context.Database.Migrate();
-            }
-            else
-            {
-                _context.Database.EnsureCreated();
-            }
+            if (pendingMigrations is { Count: > 0 })
+                _context.Database.Migrate();
+
+            _logger.LogInformation("Database migration completed successfully.");
         }
         catch (Exception e)
         {

@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 
 namespace EY.API.Attributes;
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilter
 {
     private const int DefaultCacheTimeInMinutes = 10;
@@ -18,7 +16,8 @@ internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilte
     public IdempotentEndpointAttribute(int cacheTimeInMinutes = DefaultCacheTimeInMinutes)
     {
         var cacheDuration = TimeSpan.FromMinutes(cacheTimeInMinutes);
-        _distributedCacheEntryOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = cacheDuration };
+        _distributedCacheEntryOptions = new DistributedCacheEntryOptions
+            { AbsoluteExpirationRelativeToNow = cacheDuration };
     }
 
     public async Task OnActionExecutionAsync(
@@ -39,9 +38,10 @@ internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilte
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "Invalid Idempotency Header",
-                    Detail = "The 'Idempotence-Key' header is missing or has an invalid format. Please provide a valid GUID.",
+                    Detail =
+                        "The 'Idempotence-Key' header is missing or has an invalid format. Please provide a valid GUID."
                 }
-            }); 
+            });
             return;
         }
 
@@ -59,7 +59,7 @@ internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilte
                 {
                     Status = StatusCodes.Status409Conflict,
                     Title = "Request In Progress",
-                    Detail = "A request with this idempotency key is currently being processed. Please try again later.",
+                    Detail = "A request with this idempotency key is currently being processed. Please try again later."
                 }
             });
             var result = new ObjectResult(null) { StatusCode = StatusCodes.Status409Conflict };
@@ -73,13 +73,10 @@ internal sealed class IdempotentEndpointAttribute : Attribute, IAsyncActionFilte
             "",
             _distributedCacheEntryOptions
         );
-        
+
         // Execute the request and cache the response for the specified duration
         var executedContext = await next();
 
-        if (executedContext.Result is ObjectResult { StatusCode: >= 200 and < 500 })
-        {
-            cache.RemoveAsync(cacheKey);
-        }
+        if (executedContext.Result is ObjectResult { StatusCode: >= 200 and < 500 }) cache.RemoveAsync(cacheKey);
     }
 }

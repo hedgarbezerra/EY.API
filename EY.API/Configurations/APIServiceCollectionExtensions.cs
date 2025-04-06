@@ -144,6 +144,8 @@ public static class APIServiceCollectionExtensions
                 opt.AssumeDefaultVersionWhenUnspecified = true;
             });
 
+        services.AddSwaggerGen();
+
         return services;
     }
 
